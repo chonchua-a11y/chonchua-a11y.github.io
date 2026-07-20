@@ -73,6 +73,13 @@
   .font-mono { font-family: ui-monospace, 'SF Mono', 'IBM Plex Mono', Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
 
   .masthead { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+  .week-tag {
+    display: inline-block; width: fit-content;
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+    background: var(--accent-soft); color: var(--accent-ink);
+    padding: 5px 11px; border-radius: 20px; margin: 0;
+  }
   .eyebrow {
     font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
     font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin: 0;
@@ -187,6 +194,8 @@
   .rec-box p:last-child { margin-bottom: 0; }
   .rec-box ul { margin: 10px 0 0; padding-left: 20px; }
   .rec-box li { margin-bottom: 6px; color: var(--text); }
+  .spec-line { font-size: 17px; line-height: 1.6; font-style: italic; margin: 0 0 16px; padding-bottom: 14px; border-bottom: 1px dashed color-mix(in srgb, var(--accent) 35%, var(--border)); }
+  .spec-line b { font-style: normal; color: var(--accent-ink); font-weight: 700; }
 
   .question-box {
     border-left: 3px solid var(--teal); background: var(--teal-soft);
@@ -228,6 +237,7 @@
 <div class="page">
 
   <header class="masthead">
+    <p class="week-tag">Week 1 — Identify an opportunity</p>
     <p class="eyebrow">Discovery memo · Stride activity data · PostHog</p>
     <h1>Persona predicts training volume. Sport barely moves it.</h1>
     <p class="dek">Why power users log 5x more than new users over 90 days, what got ruled out along the way, and the open question left before building anything.</p>
@@ -341,8 +351,9 @@
     <h2>Spec</h2>
     <div class="rec-box">
       <p class="rec-kicker">Proposed fix</p>
+      <p class="spec-line">When a <b>weekend_warrior or casual_runner saves an activity</b>, the product <b>prompts them to log a second one from the same session</b>, so they can <b>capture the training they're already doing without reopening the flow from scratch</b>.</p>
       <h3>A quick-add flow for logging a second activity in one session</h3>
-      <p>Right after a user saves an activity, prompt: "log another activity from today?" No new integration, no wearable sync — just remove the friction of opening the log flow twice. Target weekend_warrior and casual_runner specifically.</p>
+      <p>In practice: right after the save confirmation, prompt "log another activity from today?" No new integration, no wearable sync — just remove the friction of opening the log flow twice.</p>
       <ul>
         <li>Backed by a confirmed, sizeable gap — 129 users, about half the base, using the corrected (activity-based) population count.</li>
         <li>The retention argument behind this now rests on a proper cohort-retention query, not an ad-hoc one — re-checked and it held up.</li>
