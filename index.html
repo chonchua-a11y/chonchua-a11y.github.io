@@ -1,0 +1,494 @@
+<title>Stride — Activity Density Memo</title>
+<style>
+  :root {
+    --bg: #F1F3EE;
+    --surface: #FFFFFF;
+    --surface-alt: #E7EAE2;
+    --text: #1E2420;
+    --text-muted: #5C6660;
+    --border: #D7DBD0;
+    --accent: #C1501F;
+    --accent-soft: #F1DFD3;
+    --accent-ink: #7A3313;
+    --teal: #2F6E64;
+    --warn: #8A5F0E;
+    --warn-soft: #F1E3C4;
+    --low-tier: #ABA593;
+    --shadow: 0 1px 2px rgba(30,36,32,0.06), 0 8px 24px rgba(30,36,32,0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141815;
+      --surface: #1B211D;
+      --surface-alt: #232A24;
+      --text: #EDEFE9;
+      --text-muted: #9AA69C;
+      --border: #313930;
+      --accent: #E37A3F;
+      --accent-soft: #3A2418;
+      --accent-ink: #F2C4A4;
+      --teal: #5FA79A;
+      --warn: #D2A542;
+      --warn-soft: #362C15;
+      --low-tier: #6E6B5C;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141815; --surface: #1B211D; --surface-alt: #232A24; --text: #EDEFE9;
+    --text-muted: #9AA69C; --border: #313930; --accent: #E37A3F; --accent-soft: #3A2418;
+    --accent-ink: #F2C4A4; --teal: #5FA79A; --warn: #D2A542; --warn-soft: #362C15;
+    --low-tier: #6E6B5C; --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F1F3EE; --surface: #FFFFFF; --surface-alt: #E7EAE2; --text: #1E2420;
+    --text-muted: #5C6660; --border: #D7DBD0; --accent: #C1501F; --accent-soft: #F1DFD3;
+    --accent-ink: #7A3313; --teal: #2F6E64; --warn: #8A5F0E; --warn-soft: #F1E3C4;
+    --low-tier: #ABA593; --shadow: 0 1px 2px rgba(30,36,32,0.06), 0 8px 24px rgba(30,36,32,0.05);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Charter, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(28px, 6vw, 72px) clamp(18px, 5vw, 24px) 96px;
+  }
+
+  .font-display {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, 'URW Gothic', sans-serif;
+  }
+  .font-mono {
+    font-family: ui-monospace, 'SF Mono', 'IBM Plex Mono', Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead { display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
+  .eyebrow {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 12.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0;
+  }
+  h1 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600;
+    font-size: clamp(28px, 4.6vw, 40px);
+    line-height: 1.14;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .dek {
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1.55;
+    max-width: 58ch;
+    margin: 0;
+  }
+
+  /* ---------- Scoreboard ---------- */
+  .scoreboard {
+    background: var(--text);
+    color: var(--bg);
+    border-radius: 10px;
+    padding: 26px 28px;
+    margin-bottom: 48px;
+    box-shadow: var(--shadow);
+  }
+  :root[data-theme="dark"] .scoreboard, .scoreboard { }
+  @media (prefers-color-scheme: dark) { .scoreboard { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); } }
+  :root[data-theme="dark"] .scoreboard { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); }
+  :root[data-theme="light"] .scoreboard { background: var(--text); color: var(--bg); border: none; }
+
+  .stat-label {
+    display: block;
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    display: block;
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600;
+    font-size: clamp(21px, 3.4vw, 27px);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  .stat-sub {
+    display: block;
+    margin-top: 8px;
+    font-family: Charter, Georgia, serif;
+    font-size: 15.5px;
+    opacity: 0.82;
+  }
+  .stat-sub b { font-family: inherit; }
+
+  /* ---------- Laps ---------- */
+  .lap { display: grid; grid-template-columns: 78px 1fr; gap: 4px 20px; padding: 30px 0; border-top: 1px solid var(--border); }
+  .lap:first-of-type { border-top: none; padding-top: 0; }
+  .lap-marker { display: flex; flex-direction: row; gap: 8px; align-items: baseline; grid-column: 1 / 2; }
+  .lap-no {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  @media (min-width: 560px) {
+    .lap-marker { flex-direction: column; gap: 2px; }
+  }
+  .lap-name {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .lap-body { grid-column: 2 / 3; min-width: 0; }
+  @media (max-width: 559px) {
+    .lap { grid-template-columns: 1fr; }
+    .lap-body { grid-column: 1 / 2; }
+  }
+
+  .lap h2 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+  .lap p { margin: 0 0 14px; max-width: 62ch; }
+  .lap p:last-child { margin-bottom: 0; }
+  .lede { font-size: 18px; color: var(--text); }
+
+  .signal-title {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600;
+    font-size: 14.5px;
+    color: var(--text);
+    margin: 30px 0 6px;
+  }
+  .signal-title:first-child { margin-top: 0; }
+
+  /* ---------- Weekly-rate bar chart ---------- */
+  .chart { margin: 14px 0 6px; display: flex; flex-direction: column; gap: 9px; }
+  .bar-row { display: grid; grid-template-columns: 118px 1fr 54px; align-items: center; gap: 10px; }
+  .bar-label {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bar-track { background: var(--surface-alt); border-radius: 3px; height: 16px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; background: var(--low-tier); }
+  .bar-fill.target { background: var(--accent); }
+  .bar-val {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 13px;
+    text-align: right;
+    color: var(--text-muted);
+  }
+  .chart-legend { display: flex; gap: 18px; font-size: 13px; color: var(--text-muted); margin-top: 10px; }
+  .swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+
+  /* ---------- Table ---------- */
+  .table-wrap { overflow-x: auto; margin: 14px 0 6px; border: 1px solid var(--border); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; min-width: 480px; font-size: 14.5px; }
+  th, td { padding: 9px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--surface-alt);
+    font-weight: 600;
+  }
+  td.num, th.num { text-align: right; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  tr.grouped td:first-child { box-shadow: inset 3px 0 0 var(--teal); }
+  .fn { color: var(--text-muted); }
+  caption, .table-note { text-align: left; font-size: 13px; color: var(--text-muted); margin-top: 8px; caption-side: bottom; }
+
+  /* ---------- Segment bar ---------- */
+  .segbar { display: flex; height: 34px; border-radius: 6px; overflow: hidden; margin: 16px 0 8px; }
+  .seg { display: flex; align-items: center; justify-content: center; }
+  .seg.target { background: var(--accent); }
+  .seg.rest { background: var(--low-tier); }
+  .seg + .seg { box-shadow: inset 2px 0 0 var(--bg); }
+  .bracket { display: flex; align-items: flex-end; height: 14px; margin-bottom: 4px; }
+  .bracket-line { flex: none; border-left: 1px solid var(--accent); border-right: 1px solid var(--accent); border-top: 1px solid var(--accent); height: 10px; }
+  .bracket-label {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    color: var(--accent-ink);
+    margin-top: 6px;
+  }
+  .seg-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ---------- Ruled-out list ---------- */
+  .audit { display: flex; flex-direction: column; gap: 0; margin-top: 10px; border-top: 1px solid var(--border); }
+  .audit-item { padding: 16px 0; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; align-items: start; }
+  .audit-item h3 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 15.5px;
+    font-weight: 600;
+    margin: 0;
+    grid-column: 1 / 2;
+  }
+  .verdict {
+    grid-column: 2 / 3;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    height: fit-content;
+  }
+  .audit-item p { grid-column: 1 / 3; margin: 0; color: var(--text-muted); font-size: 15px; max-width: 62ch; }
+  @media (max-width: 480px) {
+    .audit-item { grid-template-columns: 1fr; }
+    .verdict { grid-column: 1 / 2; justify-self: start; }
+    .audit-item p { grid-column: 1 / 2; }
+  }
+
+  /* ---------- Recommendation box ---------- */
+  .rec-box {
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin: 12px 0 20px;
+  }
+  .rec-box .rec-kicker {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .rec-box h3 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    color: var(--text);
+    text-wrap: balance;
+  }
+  .rec-box p { margin: 0; color: var(--text); max-width: 60ch; }
+  .rec-box ul { margin: 12px 0 0; padding-left: 20px; }
+  .rec-box li { margin-bottom: 6px; }
+
+  .side-note {
+    border-left: 3px solid var(--warn);
+    background: var(--warn-soft);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-top: 18px;
+  }
+  .side-note .flag {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--warn);
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .side-note p { margin: 0; font-size: 15px; color: var(--text); max-width: 60ch; }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .lap, .scoreboard, .masthead { animation: rise 0.5s ease-out both; }
+    .lap:nth-of-type(1) { animation-delay: 0.02s; }
+    .lap:nth-of-type(2) { animation-delay: 0.05s; }
+    .lap:nth-of-type(3) { animation-delay: 0.08s; }
+    .lap:nth-of-type(4) { animation-delay: 0.11s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">Discovery memo · Stride activity data · PostHog</p>
+    <h1>Persona predicts training volume. Sport barely moves it.</h1>
+    <p class="dek">Why power users log 5x more than new users over 90 days, what that has to do with primary sport (not much), and what to build about it next week.</p>
+  </header>
+
+  <section class="scoreboard">
+    <span class="stat-label">Recommendation for next week</span>
+    <span class="stat-value">Build a quick-add flow for logging a second activity in one session</span>
+    <span class="stat-sub">Target <b>weekend_warrior</b> and <b>casual_runner</b> — 98 users, 53% of the base, retained but under-logging.</span>
+  </section>
+
+  <section class="lap">
+    <div class="lap-marker"><span class="lap-no">01</span><span class="lap-name">Hypothesis</span></div>
+    <div class="lap-body">
+      <h2>What we set out to check</h2>
+      <p class="lede">The suspected problem: average <code class="font-mono" style="font-size:0.9em">activity_created</code> events per user over 90 days ranged from ~15 (new_user) to ~79 (power_user) — a 5x spread across personas.</p>
+      <p>The claim was that <b>persona</b> predicts activity level more strongly than <b>primary_sport</b>: power_user and triathlete log 2.5–4x more than casual_runner or weekend_warrior in the same sport, and weekend_warrior stays flat around ~20 events regardless of whether the sport is Run, Hike, or Ride.</p>
+    </div>
+  </section>
+
+  <section class="lap">
+    <div class="lap-marker"><span class="lap-no">02</span><span class="lap-name">Evidence</span></div>
+    <div class="lap-body">
+      <h2>What confirmed it</h2>
+
+      <p class="signal-title">Signal 1 — Persona alone spreads volume 4.9x</p>
+      <p>Averaged across all sports, weekly logging rate by persona:</p>
+      <div class="chart">
+        <div class="bar-row"><span class="bar-label">power_user</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">5.9/wk</span></div>
+        <div class="bar-row"><span class="bar-label">triathlete</span><div class="bar-track"><div class="bar-fill" style="width:83.6%"></div></div><span class="bar-val">4.9/wk</span></div>
+        <div class="bar-row"><span class="bar-label">ultra_runner</span><div class="bar-track"><div class="bar-fill" style="width:76.6%"></div></div><span class="bar-val">4.5/wk</span></div>
+        <div class="bar-row"><span class="bar-label">competitive_cyclist</span><div class="bar-track"><div class="bar-fill" style="width:65.9%"></div></div><span class="bar-val">3.9/wk</span></div>
+        <div class="bar-row"><span class="bar-label">casual_runner</span><div class="bar-track"><div class="bar-fill target" style="width:40.0%"></div></div><span class="bar-val">2.4/wk</span></div>
+        <div class="bar-row"><span class="bar-label">weekend_warrior</span><div class="bar-track"><div class="bar-fill target" style="width:27.0%"></div></div><span class="bar-val">1.6/wk</span></div>
+        <div class="bar-row"><span class="bar-label">new_user</span><div class="bar-track"><div class="bar-fill" style="width:20.3%"></div></div><span class="bar-val">1.2/wk</span></div>
+      </div>
+      <div class="chart-legend">
+        <span><span class="swatch" style="background:var(--accent)"></span>next week's target</span>
+        <span><span class="swatch" style="background:var(--low-tier)"></span>other personas</span>
+      </div>
+      <p style="margin-top:14px">Raw 90-day averages: power_user 75.8, triathlete 63.4, ultra_runner 58.1, competitive_cyclist 50.0, casual_runner 30.3, weekend_warrior 20.5, new_user 15.4. Top to bottom, a 4.9x gap — matches the original ~15 to ~79 estimate almost exactly.</p>
+
+      <p class="signal-title">Signal 2 — Persona beats sport, confirmed by holding each constant</p>
+      <p>Fixing sport = Run, persona still spans 16.3 to 78.7, a 4.8x gap. Fixing persona = weekend_warrior, sport moves the number by less than 10%:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Persona · sport</th><th class="num">n</th><th class="num">avg / 90d</th></tr></thead>
+          <tbody>
+            <tr><td>triathlete · Run</td><td class="num">1</td><td class="num">86.0<span class="fn">*</span></td></tr>
+            <tr><td>power_user · Run</td><td class="num">20</td><td class="num">78.7</td></tr>
+            <tr><td>power_user · Ride</td><td class="num">14</td><td class="num">71.7</td></tr>
+            <tr><td>triathlete · Swim</td><td class="num">6</td><td class="num">63.5<span class="fn">*</span></td></tr>
+            <tr><td>triathlete · Ride</td><td class="num">8</td><td class="num">60.5</td></tr>
+            <tr><td>ultra_runner · Run</td><td class="num">16</td><td class="num">58.1</td></tr>
+            <tr><td>competitive_cyclist · Ride</td><td class="num">20</td><td class="num">50.0</td></tr>
+            <tr><td>casual_runner · Run</td><td class="num">81</td><td class="num">30.3</td></tr>
+            <tr class="grouped"><td>weekend_warrior · Run</td><td class="num">15</td><td class="num">21.7</td></tr>
+            <tr class="grouped"><td>weekend_warrior · Hike</td><td class="num">16</td><td class="num">20.3</td></tr>
+            <tr class="grouped"><td>weekend_warrior · Ride</td><td class="num">17</td><td class="num">19.7</td></tr>
+            <tr><td>new_user · Run</td><td class="num">18</td><td class="num">16.3</td></tr>
+            <tr><td>new_user · Walk</td><td class="num">28</td><td class="num">14.8</td></tr>
+          </tbody>
+        </table>
+        <p class="table-note">&nbsp;&nbsp;* Sample too small to trust — excluded from conclusions. &nbsp;&nbsp;<span class="swatch" style="background:var(--teal);width:3px;height:12px;border-radius:0;"></span>&nbsp;weekend_warrior's three sport rows, marked at left — 19.7 to 21.7, under 10% spread.</p>
+      </div>
+
+      <p class="signal-title">Signal 3 — The gap is volume per active week, not retention</p>
+      <p>Weekly stickiness over the 90-day window shows power_user and weekend_warrior are <i>both</i> highly retained — most people in each group show up in nearly every week. Weekend_warrior's low total isn't churn. They're present as often as power_user, they just log 1.6 activities in a typical active week against power_user's 5.9. The fix isn't "get them to come back," it's "get them to log more while they're already here."</p>
+    </div>
+  </section>
+
+  <section class="lap">
+    <div class="lap-marker"><span class="lap-no">03</span><span class="lap-name">Ruled out</span></div>
+    <div class="lap-body">
+      <h2>What we checked and set aside</h2>
+      <p>Before committing to a recommendation, three alternative leads were checked against the data. All three closed.</p>
+
+      <div class="audit">
+        <div class="audit-item">
+          <h3>Churn / dormancy recovery</h3>
+          <span class="verdict">no volume</span>
+          <p>Only 2 churned and 2 dormant users out of 186 total. Nothing to recover here right now.</p>
+        </div>
+        <div class="audit-item">
+          <h3>New_user activation funnel</h3>
+          <span class="verdict">already healthy</span>
+          <p>Looked promising on paper — 48 users, lowest average activity of any persona. But 95.8% of registered users log a first activity within 30 days, median time to first log is 10h 44m. The low total is a tenure artifact, not a stalled funnel.</p>
+        </div>
+        <div class="audit-item">
+          <h3>onboarding_completed as an activation signal</h3>
+          <span class="verdict">dead telemetry</span>
+          <p>Only 4 events fired in 12 months against 100+ registrations in the last 90 days alone. No custom properties, and all 4 fired with no persona value attached — while persona is populated on nearly every activity_created event. This event isn't wired into the real signup flow.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lap">
+    <div class="lap-marker"><span class="lap-no">04</span><span class="lap-name">Recommendation</span></div>
+    <div class="lap-body">
+      <h2>What to do next week</h2>
+
+      <p>Of the 186 users in the base, weekend_warrior and casual_runner together are 98 of them:</p>
+      <div class="segbar">
+        <div class="seg target" style="width:35.5%"></div>
+        <div class="seg target" style="width:17.2%"></div>
+        <div class="seg rest" style="width:25.8%"></div>
+        <div class="seg rest" style="width:8.1%"></div>
+        <div class="seg rest" style="width:4.3%"></div>
+        <div class="seg rest" style="width:3.8%"></div>
+        <div class="seg rest" style="width:3.2%"></div>
+      </div>
+      <div class="bracket" style="width:52.7%"><div class="bracket-line" style="width:100%"></div></div>
+      <p class="bracket-label" style="margin-top:-6px;margin-bottom:14px">98 users · 53% of the base · retained, under-logging</p>
+      <div class="seg-legend">
+        <span><span class="swatch" style="background:var(--accent)"></span>casual_runner (66) + weekend_warrior (32)</span>
+        <span><span class="swatch" style="background:var(--low-tier)"></span>new_user (48) · power_user (15) · ultra_runner (8) · competitive_cyclist (7) · triathlete (6)</span>
+      </div>
+
+      <div class="rec-box">
+        <p class="rec-kicker">Build this</p>
+        <h3>A quick-add flow for logging a second activity in the same session</h3>
+        <p>Right after a user saves an activity, prompt: "log another activity from today?" No new integration, no wearable sync — just remove the friction of opening the log flow twice. Target weekend_warrior and casual_runner specifically.</p>
+        <ul>
+          <li>Backed by a confirmed, sizeable gap — 98 users, 53% of the base.</li>
+          <li>Shippable in a week. A passive-capture integration (auto-detect from a connected wearable) targets the same problem but is a much bigger lift — worth keeping on the roadmap if this validates that users have more to log than they bother to.</li>
+          <li>Churn and activation, the two obvious alternative bets, both checked out fine. No need to build fixes for problems that don't exist.</li>
+        </ul>
+      </div>
+
+      <div class="side-note">
+        <p class="flag">Also do — same week, low effort</p>
+        <p>Retire or properly re-instrument <code class="font-mono" style="font-size:0.92em">onboarding_completed</code>. It's currently a landmine in the analytics — anyone who builds a dashboard or alert off it will draw false conclusions, the way this investigation almost did.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Source: PostHog project data, <code class="font-mono" style="font-size:0.92em">activity_created</code> / <code class="font-mono" style="font-size:0.92em">user_registered</code> / <code class="font-mono" style="font-size:0.92em">onboarding_completed</code> events, person properties <code class="font-mono" style="font-size:0.92em">persona</code> and <code class="font-mono" style="font-size:0.92em">primary_sport</code>. 90-day trailing window unless noted.
+  </footer>
+
+</div>
