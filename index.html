@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stride — Activity Density Discovery Memo</title>
-<meta name="description" content="Why power users log 5x more than new users over 90 days. Persona vs. sport, three alternatives ruled out, and the open question left before building.">
+<meta name="description" content="Why power users log 5x more than new users over 90 days. Persona vs. sport, cross-checked against PostHog retention, Intercom, and Linear, with one corrected claim.">
 <link rel="canonical" href="https://chonchua-a11y.github.io/">
 
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://chonchua-a11y.github.io/">
 <meta property="og:title" content="Persona predicts training volume. Sport barely moves it.">
-<meta property="og:description" content="15.4 → 75.8 activity_created events / 90 days, new_user to power_user. A PostHog discovery memo: what confirmed it, what got ruled out, and the open question left before building.">
+<meta property="og:description" content="15.4 → 75.8 activity_created events / 90 days, new_user to power_user. Cross-checked against a cohort retention query, Intercom, and Linear — one claim corrected, one downgraded.">
 <meta property="og:image" content="https://chonchua-a11y.github.io/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -18,7 +18,7 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Persona predicts training volume. Sport barely moves it.">
-<meta name="twitter:description" content="15.4 → 75.8 activity_created events / 90 days, new_user to power_user. What confirmed it, what got ruled out, and the open question left before building.">
+<meta name="twitter:description" content="15.4 → 75.8 activity_created events / 90 days, new_user to power_user. Cross-checked against PostHog, Intercom, and Linear — one claim corrected, one downgraded.">
 <meta name="twitter:image" content="https://chonchua-a11y.github.io/og-image.png">
 
 <style>
@@ -198,6 +198,20 @@
   }
   .question-box p { margin: 0; font-size: 17px; color: var(--text); max-width: 58ch; }
 
+  .revision-note { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 32px; }
+  .revision-note .rev-kicker {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin: 0 0 6px;
+  }
+  .revision-note p { margin: 0; font-size: 14.5px; color: var(--text); max-width: 62ch; }
+
+  .side-note { border-left: 3px solid var(--warn); background: var(--warn-soft); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 20px 0; }
+  .side-note .flag {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--warn); font-weight: 700; margin: 0 0 6px;
+  }
+  .side-note p { margin: 0; font-size: 15px; color: var(--text); max-width: 60ch; }
+
   footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-muted); }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -218,6 +232,11 @@
     <h1>Persona predicts training volume. Sport barely moves it.</h1>
     <p class="dek">Why power users log 5x more than new users over 90 days, what got ruled out along the way, and the open question left before building anything.</p>
   </header>
+
+  <div class="revision-note">
+    <p class="rev-kicker">Revised · cross-checked 2026-07-20</p>
+    <p>Interrogated the weakest claim (the retention signal) against PostHog's cohort retention tool, Intercom, and Linear. It held up — but chasing it down surfaced a bad denominator elsewhere. Segment sizing corrected (129/260, not 98/186), churn claim downgraded to unverified. Full trail in the audit below.</p>
+  </div>
 
   <section class="scoreboard">
     <span class="stat-label">The spread</span>
@@ -268,17 +287,25 @@
       <p class="table-note" style="padding:0 14px 12px">&nbsp;* Sample too small to trust — excluded from conclusions. &nbsp;<span class="swatch" style="background:var(--teal);width:3px;height:12px;border-radius:0;"></span> weekend_warrior's three sport rows, marked at left — 19.7 to 21.7, under 10% spread.</p>
     </div>
 
-    <p class="signal-title">Three alternatives checked, and closed</p>
+    <p class="signal-title">Interrogated: is the retention claim real?</p>
+    <p>The weakest link in the original run was the stickiness claim behind "weekend_warrior isn't churning, they just log less." Re-ran it with PostHog's cohort retention tool instead of the ad-hoc filter used before: power_user holds 100% weekly return across all 13 weeks, weekend_warrior stays in the high 80s–90s% with only a mild dip at the tail. <b>Confirmed</b> — both personas really are retained, this wasn't a counting artifact.</p>
+
+    <p class="signal-title">Four things checked</p>
     <div class="audit">
       <div class="audit-item">
+        <h3>Retention (power_user &amp; weekend_warrior)</h3>
+        <span class="verdict">confirmed</span>
+        <p>Re-checked via cohort retention query, not the original stickiness filter. Both personas genuinely show up nearly every week — see above.</p>
+      </div>
+      <div class="audit-item">
         <h3>Churn / dormancy recovery</h3>
-        <span class="verdict">no volume</span>
-        <p>Only 2 churned and 2 dormant users out of 186 total. Nothing to recover here right now.</p>
+        <span class="verdict">unverified</span>
+        <p>2 churned + 2 dormant out of 186 — but that denominator comes from user_registered, which we now know undercounts. Dormant/churned users don't fire activity_created, so there's no independent way to cross-check this count. Don't cite as settled.</p>
       </div>
       <div class="audit-item">
         <h3>New_user activation funnel</h3>
         <span class="verdict">already healthy</span>
-        <p>95.8% of registered users log a first activity within 30 days, median time to first log is 10h 44m. new_user's low total is a tenure artifact, not a stalled funnel.</p>
+        <p>95.8% of registered users log a first activity within 30 days, median time to first log is 10h 44m. Real, but scoped to users user_registered actually fired for — see the registration-coverage gap below.</p>
       </div>
       <div class="audit-item">
         <h3>onboarding_completed as an activation signal</h3>
@@ -287,21 +314,26 @@
       </div>
     </div>
 
-    <p>What's left: weekend_warrior and casual_runner are both highly retained — most show up in nearly every week of the 90-day window — but log far less per active week than power_user. That's 98 of 186 users, 53% of the base:</p>
-    <div class="segbar">
-      <div class="seg target" style="width:35.5%"></div>
-      <div class="seg target" style="width:17.2%"></div>
-      <div class="seg rest" style="width:25.8%"></div>
-      <div class="seg rest" style="width:8.1%"></div>
-      <div class="seg rest" style="width:4.3%"></div>
-      <div class="seg rest" style="width:3.8%"></div>
-      <div class="seg rest" style="width:3.2%"></div>
+    <div class="side-note">
+      <p class="flag">New data-quality flag</p>
+      <p>Chasing the retention discrepancy surfaced a second instrumentation gap: user_registered undercounts the real active population for 6 of 7 personas, sometimes by 2x+ (power_user: 15 registered vs. 34 people actually logging activity). Checked that persona itself isn't the problem — it's stable per user, 0 of 260 active people show more than one value. The gap is real, and it means any earlier analysis sized off user_registered (segment counts, the churn figure above) rests on an incomplete base. Corrected below using activity_created population instead.</p>
     </div>
-    <div class="bracket" style="width:52.7%"><div class="bracket-line"></div></div>
-    <p class="bracket-label">98 users · 53% of the base · retained, under-logging</p>
+
+    <p>What's left: weekend_warrior and casual_runner are both highly retained but log far less per active week than power_user. Using the corrected, activity-based population (260 people, not 186), that's <b>129 users, about half the base</b>:</p>
+    <div class="segbar">
+      <div class="seg target" style="width:31.2%"></div>
+      <div class="seg target" style="width:18.5%"></div>
+      <div class="seg rest" style="width:17.7%"></div>
+      <div class="seg rest" style="width:13.1%"></div>
+      <div class="seg rest" style="width:7.7%"></div>
+      <div class="seg rest" style="width:6.2%"></div>
+      <div class="seg rest" style="width:5.8%"></div>
+    </div>
+    <div class="bracket" style="width:49.7%"><div class="bracket-line"></div></div>
+    <p class="bracket-label">129 users · ~50% of the base · retained, under-logging</p>
     <div class="seg-legend">
-      <span><span class="swatch" style="background:var(--accent)"></span>casual_runner (66) + weekend_warrior (32)</span>
-      <span><span class="swatch" style="background:var(--low-tier)"></span>new_user (48) · power_user (15) · ultra_runner (8) · competitive_cyclist (7) · triathlete (6)</span>
+      <span><span class="swatch" style="background:var(--accent)"></span>casual_runner (81) + weekend_warrior (48)</span>
+      <span><span class="swatch" style="background:var(--low-tier)"></span>new_user (46) · power_user (34) · competitive_cyclist (20) · ultra_runner (16) · triathlete (15)</span>
     </div>
   </section>
 
@@ -312,9 +344,10 @@
       <h3>A quick-add flow for logging a second activity in one session</h3>
       <p>Right after a user saves an activity, prompt: "log another activity from today?" No new integration, no wearable sync — just remove the friction of opening the log flow twice. Target weekend_warrior and casual_runner specifically.</p>
       <ul>
-        <li>Backed by a confirmed, sizeable gap — 98 users, 53% of the base.</li>
+        <li>Backed by a confirmed, sizeable gap — 129 users, about half the base, using the corrected (activity-based) population count.</li>
+        <li>The retention argument behind this now rests on a proper cohort-retention query, not an ad-hoc one — re-checked and it held up.</li>
         <li>Shippable in a week. A passive-capture integration (auto-detect from a connected wearable) targets the same problem but is a much bigger lift.</li>
-        <li>Churn and activation, the two obvious alternative bets, both checked out fine — no need to build fixes for problems that don't exist.</li>
+        <li>Activation checked out fine, no need to fix a funnel that isn't broken. Churn is unverified rather than ruled out — not a reason to hold this, just don't cite it as settled elsewhere.</li>
       </ul>
     </div>
   </section>
@@ -323,12 +356,12 @@
     <h2>Reacting to</h2>
     <div class="question-box">
       <p class="q-kicker">Open question</p>
-      <p>The spec assumes weekend_warrior and casual_runner are doing more activity than they log, and that a quick-add nudge would close that gap. We haven't actually confirmed that assumption, we only know they show up often and log little each time. Before investing design time in the flow, how would you validate whether these users have more to log, versus this simply being their real activity ceiling?</p>
+      <p>The spec assumes weekend_warrior and casual_runner are doing more activity than they log, and that a quick-add nudge would close that gap. Checked Intercom for support messages mentioning missed or forgotten logging — zero results, so this isn't confirmed by real evidence, but it isn't contradicted either, it's genuinely unanswered. Before investing design time in the flow, how would you validate whether these users have more to log, versus this simply being their real activity ceiling?</p>
     </div>
   </section>
 
   <footer>
-    Source: PostHog project data, <code class="font-mono" style="font-size:0.92em">activity_created</code> / <code class="font-mono" style="font-size:0.92em">user_registered</code> / <code class="font-mono" style="font-size:0.92em">onboarding_completed</code> events, person properties <code class="font-mono" style="font-size:0.92em">persona</code> and <code class="font-mono" style="font-size:0.92em">primary_sport</code>. 90-day trailing window unless noted.
+    Source: PostHog project data, <code class="font-mono" style="font-size:0.92em">activity_created</code> / <code class="font-mono" style="font-size:0.92em">user_registered</code> / <code class="font-mono" style="font-size:0.92em">onboarding_completed</code> events, person properties <code class="font-mono" style="font-size:0.92em">persona</code> and <code class="font-mono" style="font-size:0.92em">primary_sport</code>, cross-checked with a cohort retention query. 90-day trailing window unless noted. Retention claim also checked against Intercom (support search, no results) and Linear (no in-flight duplicate work).
   </footer>
 
 </div>
