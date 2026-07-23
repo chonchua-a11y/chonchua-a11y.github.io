@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stride — Activity Density Discovery Memo</title>
+<meta name="description" content="Why power users log 5x more than new users over 90 days. Persona vs. sport, cross-checked against PostHog retention, Intercom, and Linear, with one corrected claim.">
+<link rel="canonical" href="https://chonchua-a11y.github.io/week1/">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://chonchua-a11y.github.io/week1/">
+<meta property="og:title" content="Persona predicts training volume. Sport barely moves it.">
+<meta property="og:description" content="15.4 → 75.8 activity_created events / 90 days, new_user to power_user. Cross-checked against a cohort retention query, Intercom, and Linear — one claim corrected, one downgraded.">
+<meta property="og:image" content="https://chonchua-a11y.github.io/week1/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="chonchua-a11y.github.io">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Persona predicts training volume. Sport barely moves it.">
+<meta name="twitter:description" content="15.4 → 75.8 activity_created events / 90 days, new_user to power_user. Cross-checked against PostHog, Intercom, and Linear — one claim corrected, one downgraded.">
+<meta name="twitter:image" content="https://chonchua-a11y.github.io/week1/og-image.png">
+
+<style>
+  :root {
+    --bg: #F1F3EE;
+    --surface: #FFFFFF;
+    --surface-alt: #E7EAE2;
+    --text: #1E2420;
+    --text-muted: #5C6660;
+    --border: #D7DBD0;
+    --accent: #C1501F;
+    --accent-soft: #F1DFD3;
+    --accent-ink: #7A3313;
+    --teal: #2F6E64;
+    --teal-soft: #E1EEEB;
+    --warn: #8A5F0E;
+    --warn-soft: #F1E3C4;
+    --low-tier: #ABA593;
+    --shadow: 0 1px 2px rgba(30,36,32,0.06), 0 8px 24px rgba(30,36,32,0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141815; --surface: #1B211D; --surface-alt: #232A24; --text: #EDEFE9;
+      --text-muted: #9AA69C; --border: #313930; --accent: #E37A3F; --accent-soft: #3A2418;
+      --accent-ink: #F2C4A4; --teal: #5FA79A; --teal-soft: #1B302C; --warn: #D2A542; --warn-soft: #362C15;
+      --low-tier: #6E6B5C; --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141815; --surface: #1B211D; --surface-alt: #232A24; --text: #EDEFE9;
+    --text-muted: #9AA69C; --border: #313930; --accent: #E37A3F; --accent-soft: #3A2418;
+    --accent-ink: #F2C4A4; --teal: #5FA79A; --teal-soft: #1B302C; --warn: #D2A542; --warn-soft: #362C15;
+    --low-tier: #6E6B5C; --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F1F3EE; --surface: #FFFFFF; --surface-alt: #E7EAE2; --text: #1E2420;
+    --text-muted: #5C6660; --border: #D7DBD0; --accent: #C1501F; --accent-soft: #F1DFD3;
+    --accent-ink: #7A3313; --teal: #2F6E64; --teal-soft: #E1EEEB; --warn: #8A5F0E; --warn-soft: #F1E3C4;
+    --low-tier: #ABA593; --shadow: 0 1px 2px rgba(30,36,32,0.06), 0 8px 24px rgba(30,36,32,0.05);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: Charter, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+    font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  .page { max-width: 740px; margin: 0 auto; padding: clamp(28px, 6vw, 72px) clamp(18px, 5vw, 24px) 88px; }
+  .font-mono { font-family: ui-monospace, 'SF Mono', 'IBM Plex Mono', Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+
+  .masthead { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+  .week-tag {
+    display: inline-block; width: fit-content;
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+    background: var(--accent-soft); color: var(--accent-ink);
+    padding: 5px 11px; border-radius: 20px; margin: 0;
+  }
+  .eyebrow {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin: 0;
+  }
+  h1 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600; font-size: clamp(26px, 4.4vw, 36px); line-height: 1.16; letter-spacing: -0.01em; margin: 0; text-wrap: balance;
+  }
+  .dek { color: var(--text-muted); font-size: 17.5px; line-height: 1.55; max-width: 58ch; margin: 0; }
+
+  .scoreboard { background: var(--text); color: var(--bg); border-radius: 10px; padding: 24px 26px; margin-bottom: 40px; box-shadow: var(--shadow); }
+  :root[data-theme="dark"] .scoreboard { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); }
+  :root[data-theme="light"] .scoreboard { background: var(--text); color: var(--bg); border: none; }
+  @media (prefers-color-scheme: dark) { .scoreboard { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); } }
+
+  .stat-label {
+    display: block; font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.65; margin-bottom: 8px;
+  }
+  .stat-value {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-weight: 600;
+    font-size: clamp(26px, 4.6vw, 34px); line-height: 1.1;
+  }
+  .stat-value .vs { font-family: Charter, Georgia, serif; font-weight: 400; font-size: 0.5em; opacity: 0.6; }
+  .stat-sub { display: block; margin-top: 10px; font-family: Charter, Georgia, serif; font-size: 15.5px; opacity: 0.85; max-width: 52ch; }
+
+  section.block { padding: 30px 0; border-top: 1px solid var(--border); }
+  section.block:first-of-type { border-top: none; padding-top: 0; }
+  .block h2 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600; font-size: 21px; margin: 0 0 14px; text-wrap: balance;
+  }
+  .block p { margin: 0 0 14px; max-width: 62ch; }
+  .block p:last-child { margin-bottom: 0; }
+  .lede { font-size: 18px; }
+
+  .signal-title {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600; font-size: 14px; color: var(--text); margin: 26px 0 10px;
+  }
+  .signal-title:first-child { margin-top: 0; }
+
+  /* bars */
+  .chart { margin: 14px 0 6px; display: flex; flex-direction: column; gap: 9px; }
+  .bar-row { display: grid; grid-template-columns: 128px 1fr 56px; align-items: center; gap: 10px; }
+  .bar-label { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { background: var(--surface-alt); border-radius: 3px; height: 16px; overflow: hidden; border: 1px solid var(--border); }
+  .bar-fill { height: 100%; background: var(--low-tier); }
+  .bar-fill.flag { background: var(--accent); min-width: 3px; }
+  .bar-val { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; text-align: right; color: var(--text-muted); }
+  .chart-note { font-size: 14.5px; color: var(--text-muted); margin-top: 10px; }
+  .chart-legend { display: flex; gap: 18px; font-size: 13px; color: var(--text-muted); margin-top: 10px; flex-wrap: wrap; }
+  .swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+
+  .table-wrap { overflow-x: auto; margin: 14px 0 6px; border: 1px solid var(--border); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; min-width: 460px; font-size: 14.5px; }
+  th, td { padding: 9px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted);
+    background: var(--surface-alt); font-weight: 600;
+  }
+  td.num, th.num { text-align: right; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  tr.grouped td:first-child { box-shadow: inset 3px 0 0 var(--teal); }
+  .fn { color: var(--text-muted); font-size: 0.85em; font-weight: 400; }
+  .table-note { font-size: 13.5px; color: var(--text-muted); margin-top: 10px; max-width: 62ch; }
+
+  /* segment bar */
+  .segbar { display: flex; height: 32px; border-radius: 6px; overflow: hidden; margin: 14px 0 8px; }
+  .seg.target { background: var(--accent); }
+  .seg.rest { background: var(--low-tier); }
+  .seg + .seg { box-shadow: inset 2px 0 0 var(--bg); }
+  .bracket { display: flex; align-items: flex-end; height: 12px; margin-bottom: 4px; }
+  .bracket-line { border-left: 1px solid var(--accent); border-right: 1px solid var(--accent); border-top: 1px solid var(--accent); height: 10px; width: 100%; }
+  .bracket-label { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 12.5px; color: var(--accent-ink); margin: 6px 0 14px; }
+  .seg-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--text-muted); }
+
+  /* ruled-out audit */
+  .audit { display: flex; flex-direction: column; margin-top: 6px; border-top: 1px solid var(--border); }
+  .audit-item { padding: 15px 0; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto; gap: 5px 16px; align-items: start; }
+  .audit-item h3 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 15px; font-weight: 600; margin: 0; grid-column: 1 / 2;
+  }
+  .verdict {
+    grid-column: 2 / 3; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 11px;
+    letter-spacing: 0.02em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px;
+    background: var(--surface-alt); color: var(--text-muted); white-space: nowrap; height: fit-content;
+  }
+  .audit-item p { grid-column: 1 / 3; margin: 0; color: var(--text-muted); font-size: 14.5px; max-width: 62ch; }
+  @media (max-width: 480px) {
+    .audit-item { grid-template-columns: 1fr; }
+    .verdict { grid-column: 1 / 2; justify-self: start; }
+    .audit-item p { grid-column: 1 / 2; }
+  }
+
+  .rec-box {
+    background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-radius: 10px; padding: 20px 22px; margin: 4px 0;
+  }
+  .rec-box .rec-kicker {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-ink); font-weight: 600; margin: 0 0 8px;
+  }
+  .rec-box h3 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 19px; font-weight: 600; margin: 0 0 10px; color: var(--text); text-wrap: balance;
+  }
+  .rec-box p { margin: 0 0 10px; color: var(--text); max-width: 58ch; }
+  .rec-box p:last-child { margin-bottom: 0; }
+  .rec-box ul { margin: 10px 0 0; padding-left: 20px; }
+  .rec-box li { margin-bottom: 6px; color: var(--text); }
+  .spec-line { font-size: 17px; line-height: 1.6; font-style: italic; margin: 0 0 16px; padding-bottom: 14px; border-bottom: 1px dashed color-mix(in srgb, var(--accent) 35%, var(--border)); }
+  .spec-line b { font-style: normal; color: var(--accent-ink); font-weight: 700; }
+
+  .question-box {
+    border-left: 3px solid var(--teal); background: var(--teal-soft);
+    border-radius: 0 8px 8px 0; padding: 18px 22px;
+  }
+  .question-box .q-kicker {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); font-weight: 700; margin: 0 0 8px;
+  }
+  .question-box p { margin: 0; font-size: 17px; color: var(--text); max-width: 58ch; }
+
+  .revision-note { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 32px; }
+  .revision-note .rev-kicker {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin: 0 0 6px;
+  }
+  .revision-note p { margin: 0; font-size: 14.5px; color: var(--text); max-width: 62ch; }
+
+  .side-note { border-left: 3px solid var(--warn); background: var(--warn-soft); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 20px 0; }
+  .side-note .flag {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--warn); font-weight: 700; margin: 0 0 6px;
+  }
+  .side-note p { margin: 0; font-size: 15px; color: var(--text); max-width: 60ch; }
+
+  .evidence-quote { border-left: 3px solid var(--border); background: var(--surface-alt); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 10px 0; }
+  .evidence-quote p { margin: 0 0 6px; font-style: italic; font-size: 14.5px; color: var(--text); max-width: 60ch; }
+  .evidence-quote cite { font-style: normal; font-size: 12.5px; color: var(--text-muted); }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-muted); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .masthead, .scoreboard, .block { animation: rise 0.5s ease-out both; }
+    .block:nth-of-type(1) { animation-delay: 0.02s; }
+    .block:nth-of-type(2) { animation-delay: 0.05s; }
+    .block:nth-of-type(3) { animation-delay: 0.08s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="week-tag">Week 1 — Identify an opportunity</p>
+    <p class="eyebrow">Discovery memo · Stride activity data · PostHog</p>
+    <h1>Persona predicts training volume. Sport barely moves it.</h1>
+    <p class="dek">Why power users log 5x more than new users over 90 days, what got ruled out along the way, and the open question left before building anything.</p>
+  </header>
+
+  <div class="revision-note">
+    <p class="rev-kicker">Revised · cross-checked 2026-07-20</p>
+    <p>Interrogated the weakest claim (the retention signal) against PostHog's cohort retention tool, Intercom, and Linear. It held up — but chasing it down surfaced a bad denominator elsewhere. Segment sizing corrected (129/260, not 98/186), churn claim downgraded to unverified. Full trail in the audit below.</p>
+  </div>
+
+  <div class="revision-note">
+    <p class="rev-kicker">Pivoted · instructor feedback 2026-07-20</p>
+    <p>Instructor pushback on the original spec: prompting someone to log a second activity right after saving their first doesn't match a real moment, and risks inflating the metric without adding value. Correct call. Went looking for a better mechanism and found 12 open activity-sync bugs where real, device-confirmed workouts silently vanish before reaching the feed. Spec rewritten around fixing that instead — see below.</p>
+  </div>
+
+  <section class="scoreboard">
+    <span class="stat-label">The spread</span>
+    <span class="stat-value"><span class="font-mono">15.4</span><span class="vs">→</span><span class="font-mono">75.8</span></span>
+    <span class="stat-sub">activity_created events per user, 90 days, new_user to power_user — a 4.9x gap.</span>
+  </section>
+
+  <section class="block">
+    <h2>What I saw</h2>
+    <p class="lede">Average activity_created events per user over 90 days ranges from 15.4 (new_user) to 75.8 (power_user). Persona predicts this far more than primary_sport does.</p>
+
+    <p class="signal-title">Weekly logging rate by persona</p>
+    <div class="chart">
+      <div class="bar-row"><span class="bar-label">power_user</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">5.9/wk</span></div>
+      <div class="bar-row"><span class="bar-label">triathlete</span><div class="bar-track"><div class="bar-fill" style="width:83.6%"></div></div><span class="bar-val">4.9/wk</span></div>
+      <div class="bar-row"><span class="bar-label">ultra_runner</span><div class="bar-track"><div class="bar-fill" style="width:76.6%"></div></div><span class="bar-val">4.5/wk</span></div>
+      <div class="bar-row"><span class="bar-label">competitive_cyclist</span><div class="bar-track"><div class="bar-fill" style="width:65.9%"></div></div><span class="bar-val">3.9/wk</span></div>
+      <div class="bar-row"><span class="bar-label">casual_runner</span><div class="bar-track"><div class="bar-fill flag" style="width:40.0%"></div></div><span class="bar-val">2.4/wk</span></div>
+      <div class="bar-row"><span class="bar-label">weekend_warrior</span><div class="bar-track"><div class="bar-fill flag" style="width:27.0%"></div></div><span class="bar-val">1.6/wk</span></div>
+      <div class="bar-row"><span class="bar-label">new_user</span><div class="bar-track"><div class="bar-fill" style="width:20.3%"></div></div><span class="bar-val">1.2/wk</span></div>
+    </div>
+    <div class="chart-legend">
+      <span><span class="swatch" style="background:var(--accent)"></span>retained but under-logging</span>
+      <span><span class="swatch" style="background:var(--low-tier)"></span>other personas</span>
+    </div>
+
+    <p class="signal-title">Persona holds even when sport is fixed</p>
+    <p>Fixing sport = Run, persona still spans 16.3 to 78.7 — a 4.8x gap. Fixing persona = weekend_warrior, sport moves the number less than 10%:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Persona · sport</th><th class="num">n</th><th class="num">avg / 90d</th></tr></thead>
+        <tbody>
+          <tr><td>triathlete · Run</td><td class="num">1</td><td class="num">86.0<span class="fn">*</span></td></tr>
+          <tr><td>power_user · Run</td><td class="num">20</td><td class="num">78.7</td></tr>
+          <tr><td>power_user · Ride</td><td class="num">14</td><td class="num">71.7</td></tr>
+          <tr><td>triathlete · Swim</td><td class="num">6</td><td class="num">63.5<span class="fn">*</span></td></tr>
+          <tr><td>triathlete · Ride</td><td class="num">8</td><td class="num">60.5</td></tr>
+          <tr><td>ultra_runner · Run</td><td class="num">16</td><td class="num">58.1</td></tr>
+          <tr><td>competitive_cyclist · Ride</td><td class="num">20</td><td class="num">50.0</td></tr>
+          <tr><td>casual_runner · Run</td><td class="num">81</td><td class="num">30.3</td></tr>
+          <tr class="grouped"><td>weekend_warrior · Run</td><td class="num">15</td><td class="num">21.7</td></tr>
+          <tr class="grouped"><td>weekend_warrior · Hike</td><td class="num">16</td><td class="num">20.3</td></tr>
+          <tr class="grouped"><td>weekend_warrior · Ride</td><td class="num">17</td><td class="num">19.7</td></tr>
+          <tr><td>new_user · Run</td><td class="num">18</td><td class="num">16.3</td></tr>
+          <tr><td>new_user · Walk</td><td class="num">28</td><td class="num">14.8</td></tr>
+        </tbody>
+      </table>
+      <p class="table-note" style="padding:0 14px 12px">&nbsp;* Sample too small to trust — excluded from conclusions. &nbsp;<span class="swatch" style="background:var(--teal);width:3px;height:12px;border-radius:0;"></span> weekend_warrior's three sport rows, marked at left — 19.7 to 21.7, under 10% spread.</p>
+    </div>
+
+    <p class="signal-title">Interrogated: is the retention claim real?</p>
+    <p>The weakest link in the original run was the stickiness claim behind "weekend_warrior isn't churning, they just log less." Re-ran it with PostHog's cohort retention tool instead of the ad-hoc filter used before: power_user holds 100% weekly return across all 13 weeks, weekend_warrior stays in the high 80s–90s% with only a mild dip at the tail. <b>Confirmed</b> — both personas really are retained, this wasn't a counting artifact.</p>
+
+    <p class="signal-title">Four things checked</p>
+    <div class="audit">
+      <div class="audit-item">
+        <h3>Retention (power_user &amp; weekend_warrior)</h3>
+        <span class="verdict">confirmed</span>
+        <p>Re-checked via cohort retention query, not the original stickiness filter. Both personas genuinely show up nearly every week — see above.</p>
+      </div>
+      <div class="audit-item">
+        <h3>Churn / dormancy recovery</h3>
+        <span class="verdict">unverified</span>
+        <p>2 churned + 2 dormant out of 186 — but that denominator comes from user_registered, which we now know undercounts. Dormant/churned users don't fire activity_created, so there's no independent way to cross-check this count. Don't cite as settled.</p>
+      </div>
+      <div class="audit-item">
+        <h3>New_user activation funnel</h3>
+        <span class="verdict">already healthy</span>
+        <p>95.8% of registered users log a first activity within 30 days, median time to first log is 10h 44m. Real, but scoped to users user_registered actually fired for — see the registration-coverage gap below.</p>
+      </div>
+      <div class="audit-item">
+        <h3>onboarding_completed as an activation signal</h3>
+        <span class="verdict">dead telemetry</span>
+        <p>Only 4 events fired in 12 months against 100+ registrations in the last 90 days alone, no custom properties, and no persona value attached on any of the 4. Not wired into the real signup flow — flagged separately, not used here.</p>
+      </div>
+    </div>
+
+    <div class="side-note">
+      <p class="flag">New data-quality flag</p>
+      <p>Chasing the retention discrepancy surfaced a second instrumentation gap: user_registered undercounts the real active population for 6 of 7 personas, sometimes by 2x+ (power_user: 15 registered vs. 34 people actually logging activity). Checked that persona itself isn't the problem — it's stable per user, 0 of 260 active people show more than one value. The gap is real, and it means any earlier analysis sized off user_registered (segment counts, the churn figure above) rests on an incomplete base. Corrected below using activity_created population instead.</p>
+    </div>
+
+    <p>What's left: weekend_warrior and casual_runner are both highly retained but log far less per active week than power_user. Using the corrected, activity-based population (260 people, not 186), that's <b>129 users, about half the base</b>:</p>
+    <div class="segbar">
+      <div class="seg target" style="width:31.2%"></div>
+      <div class="seg target" style="width:18.5%"></div>
+      <div class="seg rest" style="width:17.7%"></div>
+      <div class="seg rest" style="width:13.1%"></div>
+      <div class="seg rest" style="width:7.7%"></div>
+      <div class="seg rest" style="width:6.2%"></div>
+      <div class="seg rest" style="width:5.8%"></div>
+    </div>
+    <div class="bracket" style="width:49.7%"><div class="bracket-line"></div></div>
+    <p class="bracket-label">129 users · ~50% of the base · retained, under-logging</p>
+    <div class="seg-legend">
+      <span><span class="swatch" style="background:var(--accent)"></span>casual_runner (81) + weekend_warrior (48)</span>
+      <span><span class="swatch" style="background:var(--low-tier)"></span>new_user (46) · power_user (34) · competitive_cyclist (20) · ultra_runner (16) · triathlete (15)</span>
+    </div>
+
+    <p class="signal-title">Instructor pushback: does the flow even make sense?</p>
+    <p>Fair challenge on the original spec: prompting someone to log a second activity right after they save their first doesn't match a real moment, most people haven't done two workouts back to back. Went looking for whether "they have more to log than they record" was even testable, and it isn't: activity_created has no property distinguishing a manual entry from a device sync, and there's no separate "workout detected" event to compare against. That question stays unanswerable with current instrumentation.</p>
+    <p>But that dead end led somewhere better. Linear has <b>12 open bugs</b> labeled activity-sync, all describing the same pattern: a workout completes on a device (Garmin, Apple Watch Ultra 2), the device confirms it synced, and it never appears in the Stride feed, or appears and then vanishes. One of them fails specifically for activities logged more than 12 hours after they happened, not random, biased toward people who don't log in real time. Verified two of the linked Intercom conversations directly rather than trusting the ticket summary — both real, both open, neither ever got a human reply:</p>
+    <div class="evidence-quote">
+      <p>"I did a 45-minute ride yesterday morning and my Garmin synced it fine, but the workout never showed up in my feed here... This was a pretty solid ride for me and I'm frustrated it's just gone."</p>
+      <cite>— Patti Doyle, open conversation, no human reply</cite>
+    </div>
+    <div class="evidence-quote">
+      <p>"I completed a 10-mile run yesterday morning on my Garmin Forerunner 265 and it synced to Stride, but the workout never appeared in my feed... This was an important run for me and I'm frustrated it's not showing up."</p>
+      <cite>— Dwayne Hane, open conversation, no human reply</cite>
+    </div>
+    <p>12 tickets, several Urgent priority, most still sitting in Backlog or Todo. This is a better lead than the original assumption: it's confirmed real activity being lost, not a guess about behavior nobody could verify.</p>
+  </section>
+
+  <section class="block">
+    <h2>Spec</h2>
+    <div class="rec-box">
+      <p class="rec-kicker">Revised after instructor pushback — proposed fix</p>
+      <p class="spec-line">When a device <b>syncs an activity more than 12 hours after it was recorded</b>, the product <b>reliably persists it to the user's feed instead of silently dropping it</b>, so they can <b>get credit for training they actually did, with nothing new asked of them</b>.</p>
+      <h3>Fix the delayed-sync failure, starting with STR-86</h3>
+      <p>Prioritize the &gt;12h delayed-sync bug and the recurring Garmin / Apple Watch persistence failures (STR-16, STR-19, STR-21, STR-23, STR-97) already sitting in the backlog. No new UI, no new ask of the user — this recovers activity that already happened.</p>
+      <ul>
+        <li>Doesn't have the flaw the original spec had. Nobody is asked to log something that doesn't exist, this is pure recovery of real, already-completed activity.</li>
+        <li>12 open tickets, several Urgent, most unstarted — this isn't a hunch, it's an acknowledged backlog problem nobody has prioritized yet.</li>
+        <li>If weekend_warrior/casual_runner log with more delay than power_user on average, this could close part of the 129-user gap as a side effect, without needing to prove that first. Worth validating, not a prerequisite for fixing a known bug.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Reacting to</h2>
+    <div class="question-box">
+      <p class="q-kicker">Open question</p>
+      <p>The pivot assumes weekend_warrior and casual_runner log with more delay than power_user, on average, which would make them more exposed to the &gt;12h sync bug. I don't have data confirming that yet — activity_created doesn't expose a gap between when an activity happened and when it was logged. How would you go about testing that before treating it as the explanation for the persona gap, rather than just a plausible story?</p>
+    </div>
+  </section>
+
+  <footer>
+    Source: PostHog project data, <code class="font-mono" style="font-size:0.92em">activity_created</code> / <code class="font-mono" style="font-size:0.92em">user_registered</code> / <code class="font-mono" style="font-size:0.92em">onboarding_completed</code> events, person properties <code class="font-mono" style="font-size:0.92em">persona</code> and <code class="font-mono" style="font-size:0.92em">primary_sport</code>, cross-checked with a cohort retention query. 90-day trailing window unless noted. Spec revised after checking Linear's activity-sync bug backlog (12 open issues) and verifying two linked Intercom conversations directly.
+  </footer>
+
+</div>
+</body>
+</html>
