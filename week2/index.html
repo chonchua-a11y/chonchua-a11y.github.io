@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Stride — Training Tiers Prototype Review</title>
+<title>Stride: Training Tiers Prototype Review</title>
 <meta name="description" content="A cumulative tier ladder for Stride, prototyped for the retained-but-under-logging segment identified in Week 1. Core flow, what's fake or stubbed, and one open question before shipping.">
 <link rel="canonical" href="https://chonchua-a11y.github.io/week2/">
 
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://chonchua-a11y.github.io/week2/">
 <meta property="og:title" content="A tier ladder instead of a decorative trophy case.">
-<meta property="og:description" content="Prototyped for casual_runner + weekend_warrior (129 users, retained but under-logging) — a speculative bet, not a confirmed problem like Week 1's sync fix.">
+<meta property="og:description" content="Prototyped for casual_runner + weekend_warrior (129 users, retained but under-logging), a speculative bet rather than a confirmed problem like Week 1's sync fix.">
 <meta property="og:image" content="https://chonchua-a11y.github.io/week2/flow-1-default.png">
 <meta property="og:site_name" content="chonchua-a11y.github.io">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="A tier ladder instead of a decorative trophy case.">
-<meta name="twitter:description" content="Prototyped for casual_runner + weekend_warrior (129 users, retained but under-logging) — a speculative bet, not a confirmed problem like Week 1's sync fix.">
+<meta name="twitter:description" content="Prototyped for casual_runner + weekend_warrior (129 users, retained but under-logging), a speculative bet rather than a confirmed problem like Week 1's sync fix.">
 <meta name="twitter:image" content="https://chonchua-a11y.github.io/week2/flow-1-default.png">
 
 <style>
@@ -159,22 +159,22 @@
 <div class="page">
 
   <header class="masthead">
-    <p class="week-tag">Week 2 — Prototype your feature</p>
+    <p class="week-tag">Week 2: Prototype your feature</p>
     <p class="eyebrow">Prototype review · Stride training tiers</p>
     <h1>A tier ladder instead of a decorative trophy case.</h1>
-    <p class="dek">Prototyped for the retained-but-under-logging segment from Week 1 — a speculative bet, not a confirmed problem, and the review is built to say so plainly.</p>
+    <p class="dek">Prototyped for the retained-but-under-logging segment from Week 1. It's a speculative bet, not a confirmed problem, and the review says so plainly.</p>
   </header>
 
   <div class="revision-note">
     <p class="rev-kicker">Spec, traced back to Week 1</p>
-    <p>When an athlete crosses a cumulative activity threshold, the product surfaces a permanent tier and visible progress toward the next one, so retained-but-under-logging athletes (casual_runner + weekend_warrior, 129 users, ~half the base) have a concrete reason to log the next activity. Unlike <a href="/week1/">Week 1's sync-recovery spec</a>, this is a bet on behavioral and instrumentation signals — not a confirmed customer or backlog problem.</p>
+    <p>When an athlete crosses a cumulative activity threshold, the product surfaces a permanent tier and visible progress toward the next one, so retained-but-under-logging athletes (casual_runner + weekend_warrior, 129 users, ~half the base) have a concrete reason to log the next activity. Unlike <a href="/week1/">Week 1's sync-recovery spec</a>, this is a bet on behavioral and instrumentation signals, not a confirmed customer or backlog problem.</p>
   </div>
 
   <section class="block">
     <h2>Link to the prototype</h2>
     <div class="link-box">
       <a class="btn" href="https://www.figma.com/design/25yJeQfjshdhGjimLrz7gi?node-id=1-2" target="_blank" rel="noopener">View in Figma →</a>
-      <span class="note">Composition, copy, and visual polish. The running code — not this file — is the behavior source of truth.</span>
+      <span class="note">Composition, copy, and visual polish. The running code, not this file, is the behavior source of truth.</span>
     </div>
   </section>
 
@@ -184,22 +184,22 @@
 
     <div class="shot">
       <video src="demo.webm" controls muted playsinline preload="metadata" style="width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--border);box-shadow:var(--shadow);"></video>
-      <p class="cap"><b>Demo clip</b> — expanding a locked tier, then flipping through the header-chip and inline-ladder placements live in the running prototype.</p>
+      <p class="cap"><b>Demo clip:</b> expanding a locked tier, then flipping through the header-chip and inline-ladder placements live in the running prototype.</p>
     </div>
 
     <div class="shot">
       <img src="flow-1-default.png" alt="Default state: Training Tier card showing Consistent tier, current progress, and a collapsed ladder of other tiers" loading="lazy">
-      <p class="cap"><b>1. Default view</b> — current tier (Consistent), progress toward the next one, ladder collapsed.</p>
+      <p class="cap"><b>1. Default view:</b> current tier (Consistent), progress toward the next one, ladder collapsed.</p>
     </div>
 
     <div class="shot">
       <img src="flow-2-interaction.png" alt="Clicking a locked tier expands it, showing the requirement to unlock Committed" loading="lazy">
-      <p class="cap"><b>2. Click a locked tier</b> — it expands to show exactly what's required to unlock it. Nothing is hidden behind a paywall or guesswork.</p>
+      <p class="cap"><b>2. Click a locked tier</b> and it expands to show exactly what's required to unlock it. Nothing is hidden behind a paywall or guesswork.</p>
     </div>
 
     <div class="shot">
       <img src="flow-3-newuser.png" alt="A brand-new athlete with zero activities sees Getting started at 0 of 5, instead of a meaningless trophy case" loading="lazy">
-      <p class="cap"><b>3. A brand-new athlete</b> — 0 activities, "Getting started," 0/5 to the next tier. This is the sharpest contrast with today's product: a trophy case that means nothing yet, replaced by an actual next step.</p>
+      <p class="cap"><b>3. A brand-new athlete:</b> 0 activities, "Getting started," 0/5 to the next tier. This is the sharpest contrast with today's product, a trophy case that means nothing yet, replaced by an actual next step.</p>
     </div>
   </section>
 
@@ -208,11 +208,11 @@
     <div class="side-note">
       <p class="flag">Read before reviewing</p>
       <ul>
-        <li><b>All data is mock.</b> Seeded fixtures, not a real account. Nothing persists — a refresh resets state.</li>
+        <li><b>All data is mock.</b> Seeded fixtures, not a real account. Nothing persists, a refresh resets state.</li>
         <li><b>Tier thresholds (5 / 10 / 18 / 28) are illustrative, not validated.</b> Round numbers chosen to make the demo account land mid-ladder, not derived from real logging-frequency data.</li>
-        <li><b>No backend, no persistence, no analytics.</b> Notably, no <code class="font-mono" style="font-size:0.92em">tier_viewed</code> / <code class="font-mono" style="font-size:0.92em">tier_unlocked</code> tracking was added — a real gap, given this idea started from a different dead metric (<code class="font-mono" style="font-size:0.92em">challenge_joined</code>).</li>
-        <li><b>"Committed" and "Elite" are visually unverified</b> on a real account — the demo data never reaches them; those two states were only checked via a temporary count override.</li>
-        <li><b>Figma isn't a linked design system.</b> Hand-built to match current code exactly, since no Stride component library exists in Figma yet — it won't auto-update if the code changes, and photos/avatars are placeholder blocks.</li>
+        <li><b>No backend, no persistence, no analytics.</b> No <code class="font-mono" style="font-size:0.92em">tier_viewed</code> / <code class="font-mono" style="font-size:0.92em">tier_unlocked</code> tracking was added either, which is a real gap given this idea started from a different dead metric (<code class="font-mono" style="font-size:0.92em">challenge_joined</code>).</li>
+        <li><b>"Committed" and "Elite" are visually unverified</b> on a real account. The demo data never reaches them, so those two states were only checked via a temporary count override.</li>
+        <li><b>Figma isn't a linked design system.</b> Hand-built to match current code exactly, since no Stride component library exists in Figma yet, so it won't auto-update if the code changes, and photos/avatars are placeholder blocks.</li>
         <li><b>No mobile/responsive check.</b> Only verified at desktop width (1280px).</li>
         <li><b>Copy is unreviewed</b> against Stride's actual brand voice.</li>
       </ul>
@@ -223,8 +223,8 @@
     <h2>Reacting to</h2>
     <div class="question-box">
       <p class="q-kicker">Open question</p>
-      <p>Three placements were prototyped for the same idea — a sidebar card, a header chip, and an inline ladder. Which should actually get built? I'd lean toward the sidebar card as the safest default, but that's a guess: unlike the sync fix, there's no support-ticket evidence pointing at one placement over another.</p>
-      <p class="context">All three variants are in the running prototype, switchable live — not shown separately here to keep this review focused on one flow.</p>
+      <p>Three placements were prototyped for the same idea: a sidebar card, a header chip, and an inline ladder. Which should actually get built? I'd lean toward the sidebar card as the safest default, but that's a guess. Unlike the sync fix, there's no support-ticket evidence pointing at one placement over another.</p>
+      <p class="context">All three variants are in the running prototype, switchable live. They're not shown separately here, to keep this review focused on one flow.</p>
     </div>
   </section>
 
