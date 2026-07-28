@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stride — Training Tiers Prototype Review</title>
+<meta name="description" content="A cumulative tier ladder for Stride, prototyped for the retained-but-under-logging segment identified in Week 1. Core flow, what's fake or stubbed, and one open question before shipping.">
+<link rel="canonical" href="https://chonchua-a11y.github.io/week2/">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://chonchua-a11y.github.io/week2/">
+<meta property="og:title" content="A tier ladder instead of a decorative trophy case.">
+<meta property="og:description" content="Prototyped for casual_runner + weekend_warrior (129 users, retained but under-logging) — a speculative bet, not a confirmed problem like Week 1's sync fix.">
+<meta property="og:image" content="https://chonchua-a11y.github.io/week2/flow-1-default.png">
+<meta property="og:site_name" content="chonchua-a11y.github.io">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A tier ladder instead of a decorative trophy case.">
+<meta name="twitter:description" content="Prototyped for casual_runner + weekend_warrior (129 users, retained but under-logging) — a speculative bet, not a confirmed problem like Week 1's sync fix.">
+<meta name="twitter:image" content="https://chonchua-a11y.github.io/week2/flow-1-default.png">
+
+<style>
+  :root {
+    --bg: #F1F3EE;
+    --surface: #FFFFFF;
+    --surface-alt: #E7EAE2;
+    --text: #1E2420;
+    --text-muted: #5C6660;
+    --border: #D7DBD0;
+    --accent: #C1501F;
+    --accent-soft: #F1DFD3;
+    --accent-ink: #7A3313;
+    --teal: #2F6E64;
+    --teal-soft: #E1EEEB;
+    --warn: #8A5F0E;
+    --warn-soft: #F1E3C4;
+    --low-tier: #ABA593;
+    --shadow: 0 1px 2px rgba(30,36,32,0.06), 0 8px 24px rgba(30,36,32,0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141815; --surface: #1B211D; --surface-alt: #232A24; --text: #EDEFE9;
+      --text-muted: #9AA69C; --border: #313930; --accent: #E37A3F; --accent-soft: #3A2418;
+      --accent-ink: #F2C4A4; --teal: #5FA79A; --teal-soft: #1B302C; --warn: #D2A542; --warn-soft: #362C15;
+      --low-tier: #6E6B5C; --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141815; --surface: #1B211D; --surface-alt: #232A24; --text: #EDEFE9;
+    --text-muted: #9AA69C; --border: #313930; --accent: #E37A3F; --accent-soft: #3A2418;
+    --accent-ink: #F2C4A4; --teal: #5FA79A; --teal-soft: #1B302C; --warn: #D2A542; --warn-soft: #362C15;
+    --low-tier: #6E6B5C; --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F1F3EE; --surface: #FFFFFF; --surface-alt: #E7EAE2; --text: #1E2420;
+    --text-muted: #5C6660; --border: #D7DBD0; --accent: #C1501F; --accent-soft: #F1DFD3;
+    --accent-ink: #7A3313; --teal: #2F6E64; --teal-soft: #E1EEEB; --warn: #8A5F0E; --warn-soft: #F1E3C4;
+    --low-tier: #ABA593; --shadow: 0 1px 2px rgba(30,36,32,0.06), 0 8px 24px rgba(30,36,32,0.05);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: Charter, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+    font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  .page { max-width: 740px; margin: 0 auto; padding: clamp(28px, 6vw, 72px) clamp(18px, 5vw, 24px) 88px; }
+  .font-mono { font-family: ui-monospace, 'SF Mono', 'IBM Plex Mono', Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+
+  .masthead { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+  .week-tag {
+    display: inline-block; width: fit-content;
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+    background: var(--accent-soft); color: var(--accent-ink);
+    padding: 5px 11px; border-radius: 20px; margin: 0;
+  }
+  .eyebrow {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin: 0;
+  }
+  h1 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600; font-size: clamp(26px, 4.4vw, 36px); line-height: 1.16; letter-spacing: -0.01em; margin: 0; text-wrap: balance;
+  }
+  .dek { color: var(--text-muted); font-size: 17.5px; line-height: 1.55; max-width: 58ch; margin: 0; }
+
+  section.block { padding: 30px 0; border-top: 1px solid var(--border); }
+  section.block:first-of-type { border-top: none; padding-top: 0; }
+  .block h2 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600; font-size: 21px; margin: 0 0 14px; text-wrap: balance;
+  }
+  .block p { margin: 0 0 14px; max-width: 62ch; }
+  .block p:last-child { margin-bottom: 0; }
+  .lede { font-size: 18px; }
+
+  .revision-note { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 32px; }
+  .revision-note .rev-kicker {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin: 0 0 6px;
+  }
+  .revision-note p { margin: 0; font-size: 14.5px; color: var(--text); max-width: 62ch; }
+
+  .link-box {
+    display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 20px; box-shadow: var(--shadow);
+  }
+  .link-box a.btn {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 13px; font-weight: 600; text-decoration: none;
+    background: var(--accent); color: #fff; padding: 9px 16px; border-radius: 6px;
+  }
+  .link-box .note { font-size: 14px; color: var(--text-muted); font-family: Charter, Georgia, serif; }
+
+  .shot { margin: 20px 0; }
+  .shot img { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .shot .cap { font-size: 14px; color: var(--text-muted); margin-top: 8px; }
+  .shot .cap b { color: var(--text); font-weight: 600; }
+
+  .side-note { border-left: 3px solid var(--warn); background: var(--warn-soft); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 20px 0; }
+  .side-note .flag {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--warn); font-weight: 700; margin: 0 0 10px;
+  }
+  .side-note ul { margin: 0; padding-left: 20px; }
+  .side-note li { margin-bottom: 10px; font-size: 15px; color: var(--text); max-width: 60ch; }
+  .side-note li:last-child { margin-bottom: 0; }
+  .side-note li b { color: var(--warn); }
+
+  .question-box {
+    border-left: 3px solid var(--teal); background: var(--teal-soft);
+    border-radius: 0 8px 8px 0; padding: 18px 22px;
+  }
+  .question-box .q-kicker {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); font-weight: 700; margin: 0 0 8px;
+  }
+  .question-box p { margin: 0; font-size: 17px; color: var(--text); max-width: 58ch; }
+  .question-box p.context { font-size: 14.5px; color: var(--text-muted); margin-top: 10px; }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-muted); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .masthead, .block { animation: rise 0.5s ease-out both; }
+    .block:nth-of-type(1) { animation-delay: 0.02s; }
+    .block:nth-of-type(2) { animation-delay: 0.05s; }
+    .block:nth-of-type(3) { animation-delay: 0.08s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="week-tag">Week 2 — Prototype your feature</p>
+    <p class="eyebrow">Prototype review · Stride training tiers</p>
+    <h1>A tier ladder instead of a decorative trophy case.</h1>
+    <p class="dek">Prototyped for the retained-but-under-logging segment from Week 1 — a speculative bet, not a confirmed problem, and the review is built to say so plainly.</p>
+  </header>
+
+  <div class="revision-note">
+    <p class="rev-kicker">Spec, traced back to Week 1</p>
+    <p>When an athlete crosses a cumulative activity threshold, the product surfaces a permanent tier and visible progress toward the next one, so retained-but-under-logging athletes (casual_runner + weekend_warrior, 129 users, ~half the base) have a concrete reason to log the next activity. Unlike <a href="/week1/">Week 1's sync-recovery spec</a>, this is a bet on behavioral and instrumentation signals — not a confirmed customer or backlog problem.</p>
+  </div>
+
+  <section class="block">
+    <h2>Link to the prototype</h2>
+    <div class="link-box">
+      <a class="btn" href="https://www.figma.com/design/25yJeQfjshdhGjimLrz7gi?node-id=1-2" target="_blank" rel="noopener">View in Figma →</a>
+      <span class="note">Composition, copy, and visual polish. The running code — not this file — is the behavior source of truth.</span>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Core flow</h2>
+    <p class="lede">Today, an activity's Trophy Case shows the same 6 decorative emoji regardless of what you've actually done. This replaces it with a live tier and a concrete next step.</p>
+
+    <div class="shot">
+      <img src="flow-1-default.png" alt="Default state: Training Tier card showing Consistent tier, current progress, and a collapsed ladder of other tiers" loading="lazy">
+      <p class="cap"><b>1. Default view</b> — current tier (Consistent), progress toward the next one, ladder collapsed.</p>
+    </div>
+
+    <div class="shot">
+      <img src="flow-2-interaction.png" alt="Clicking a locked tier expands it, showing the requirement to unlock Committed" loading="lazy">
+      <p class="cap"><b>2. Click a locked tier</b> — it expands to show exactly what's required to unlock it. Nothing is hidden behind a paywall or guesswork.</p>
+    </div>
+
+    <div class="shot">
+      <img src="flow-3-newuser.png" alt="A brand-new athlete with zero activities sees Getting started at 0 of 5, instead of a meaningless trophy case" loading="lazy">
+      <p class="cap"><b>3. A brand-new athlete</b> — 0 activities, "Getting started," 0/5 to the next tier. This is the sharpest contrast with today's product: a trophy case that means nothing yet, replaced by an actual next step.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>What's intentionally fake, stubbed, or missing</h2>
+    <div class="side-note">
+      <p class="flag">Read before reviewing</p>
+      <ul>
+        <li><b>All data is mock.</b> Seeded fixtures, not a real account. Nothing persists — a refresh resets state.</li>
+        <li><b>Tier thresholds (5 / 10 / 18 / 28) are illustrative, not validated.</b> Round numbers chosen to make the demo account land mid-ladder, not derived from real logging-frequency data.</li>
+        <li><b>No backend, no persistence, no analytics.</b> Notably, no <code class="font-mono" style="font-size:0.92em">tier_viewed</code> / <code class="font-mono" style="font-size:0.92em">tier_unlocked</code> tracking was added — a real gap, given this idea started from a different dead metric (<code class="font-mono" style="font-size:0.92em">challenge_joined</code>).</li>
+        <li><b>"Committed" and "Elite" are visually unverified</b> on a real account — the demo data never reaches them; those two states were only checked via a temporary count override.</li>
+        <li><b>Figma isn't a linked design system.</b> Hand-built to match current code exactly, since no Stride component library exists in Figma yet — it won't auto-update if the code changes, and photos/avatars are placeholder blocks.</li>
+        <li><b>No mobile/responsive check.</b> Only verified at desktop width (1280px).</li>
+        <li><b>Copy is unreviewed</b> against Stride's actual brand voice.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Reacting to</h2>
+    <div class="question-box">
+      <p class="q-kicker">Open question</p>
+      <p>Three placements were prototyped for the same idea — a sidebar card, a header chip, and an inline ladder. Which should actually get built? I'd lean toward the sidebar card as the safest default, but that's a guess: unlike the sync fix, there's no support-ticket evidence pointing at one placement over another.</p>
+      <p class="context">All three variants are in the running prototype, switchable live — not shown separately here to keep this review focused on one flow.</p>
+    </div>
+  </section>
+
+  <footer>
+    Source: <a href="https://github.com/chonchua-a11y/chonchua-a11y.github.io" target="_blank" rel="noopener">stride-components prototype</a>, level-up prototype at <code class="font-mono" style="font-size:0.92em">/prototypes/level-up</code>. Grounded in <a href="/week1/">Week 1's discovery memo</a> and a PostHog check of the existing Challenges engagement mechanic.
+  </footer>
+
+</div>
+</body>
+</html>
