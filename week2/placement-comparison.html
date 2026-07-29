@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stride — Tier Ladder Placement Comparison</title>
+<meta name="description" content="Interactive side-by-side of the sidebar card, header chip, and inline ladder placements for Stride's tier-ladder prototype, built to weigh the Week 2 open question.">
+<link rel="canonical" href="https://chonchua-a11y.github.io/week2/placement-comparison.html">
+<style>
+  :root {
+    --bone: #faf7f2;
+    --ink: #221d16;
+    --surface: #ffffff;
+    --surface-2: #f1ece3;
+    --border: #e4ddd0;
+    --muted: #8a8071;
+    --orange: #d95d28;
+    --orange-wash: #d95d2814;
+    --green: #4a8f5b;
+    --green-wash: #4a8f5b16;
+    --shadow: 0 1px 2px rgba(34, 29, 22, 0.06), 0 8px 24px rgba(34, 29, 22, 0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bone: #171310;
+      --ink: #f1ece2;
+      --surface: #201a14;
+      --surface-2: #292019;
+      --border: #3c3225;
+      --muted: #a89d89;
+      --orange: #ff9257;
+      --orange-wash: #ff92571c;
+      --green: #6fc283;
+      --green-wash: #6fc2831c;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bone: #171310;
+    --ink: #f1ece2;
+    --surface: #201a14;
+    --surface-2: #292019;
+    --border: #3c3225;
+    --muted: #a89d89;
+    --orange: #ff9257;
+    --orange-wash: #ff92571c;
+    --green: #6fc283;
+    --green-wash: #6fc2831c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+  :root[data-theme="light"] {
+    --bone: #faf7f2;
+    --ink: #221d16;
+    --surface: #ffffff;
+    --surface-2: #f1ece3;
+    --border: #e4ddd0;
+    --muted: #8a8071;
+    --orange: #d95d28;
+    --orange-wash: #d95d2814;
+    --green: #4a8f5b;
+    --green-wash: #4a8f5b16;
+    --shadow: 0 1px 2px rgba(34, 29, 22, 0.06), 0 8px 24px rgba(34, 29, 22, 0.05);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bone);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.45;
+    margin: 0;
+  }
+  .mono {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  .back-link {
+    align-self: flex-start;
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .back-link:hover { color: var(--orange); border-bottom-color: var(--orange); }
+
+  /* ---- header ---- */
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--orange);
+    font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(26px, 3.4vw, 36px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 10px 0 12px;
+    text-wrap: balance;
+  }
+  .lede {
+    max-width: 62ch;
+    color: var(--muted);
+    font-size: 15px;
+  }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  /* ---- state bar ---- */
+  .state-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+  }
+  .state-bar .label {
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .state-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .state-btn {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--ink);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+  .state-btn:hover { border-color: var(--orange); }
+  .state-btn[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--bone);
+    border-color: var(--ink);
+  }
+  .state-hint { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+  /* ---- board ---- */
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 920px) {
+    .board { grid-template-columns: 1fr; }
+  }
+
+  .placement {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .placement-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .placement-name {
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+  .placement-desc {
+    margin-top: 3px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ---- mini profile frame ---- */
+  .frame {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 12px;
+  }
+  .profile-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--orange), #a83f14);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .profile-name { font-weight: 700; font-size: 13px; }
+  .profile-sub { color: var(--muted); font-size: 10.5px; }
+
+  .placeholder-block {
+    background: var(--surface-2);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .ph-chart { height: 46px; }
+  .ph-row { height: 26px; }
+  .body-cols {
+    display: grid;
+    grid-template-columns: 1fr 92px;
+    gap: 10px;
+  }
+  .main-col { display: flex; flex-direction: column; gap: 8px; }
+  .aside-col { display: flex; flex-direction: column; gap: 8px; }
+  .trophy-mini {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 6px;
+  }
+  .trophy-mini span {
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    background: var(--bone);
+    border-radius: 5px;
+    font-size: 11px;
+  }
+  .aside-label {
+    font-family: ui-monospace, monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 6px 6px 0;
+  }
+
+  /* ---- tier card (sidebar variant) ---- */
+  .tier-card {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px;
+    background: var(--surface);
+  }
+  .tier-card-head {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-family: ui-monospace, monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .tier-current { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
+  .tier-icon { font-size: 18px; }
+  .tier-current-name { font-weight: 700; font-size: 12.5px; }
+  .tier-next-hint { font-size: 10px; color: var(--muted); }
+  .progress-track {
+    height: 5px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 999px; transition: width 0.35s ease; }
+
+  /* ---- chip ---- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--orange);
+    background: var(--orange-wash);
+    color: var(--orange);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .chip .chev { transition: transform 0.15s; font-size: 9px; }
+  .chip[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+  /* ---- inline / header ladder wrap ---- */
+  .ladder-panel {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px;
+    background: var(--surface);
+  }
+  .ladder-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 7px;
+  }
+  .ladder-panel-title { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 12.5px; }
+  .ladder-panel-hint { font-size: 10px; color: var(--muted); }
+
+  /* ---- ladder list (shared) ---- */
+  .ladder-v { display: flex; flex-direction: column; gap: 4px; }
+  .ladder-h { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .tier-item {
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 7px;
+    background: var(--surface-2);
+    cursor: pointer;
+    text-align: left;
+  }
+  .tier-item.unlocked {
+    background: var(--green-wash);
+    border-color: color-mix(in oklab, var(--green) 40%, var(--border));
+  }
+  .tier-item.locked { opacity: 0.72; }
+  .tier-item-top { display: flex; align-items: center; gap: 5px; }
+  .tier-item-icon { font-size: 12px; width: 14px; text-align: center; flex-shrink: 0; }
+  .tier-item-name {
+    font-size: 10.5px;
+    font-weight: 600;
+    flex: 1;
+    min-width: 0;
+    line-height: 1.15;
+  }
+  .ladder-h .tier-item-name { font-size: 9px; }
+  .current-badge {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--green);
+    background: var(--green-wash);
+    padding: 1px 5px;
+    border-radius: 999px;
+  }
+  .tier-item-detail {
+    margin-top: 5px;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.35;
+  }
+  .tier-item-detail .req { color: var(--ink); font-weight: 600; display: block; margin-top: 3px; }
+
+  /* ---- question panel ---- */
+  .question-panel {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 22px 24px;
+  }
+  .question-panel h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .question-panel p { font-size: 14px; color: var(--muted); margin: 0 0 10px; max-width: 68ch; }
+  .lean-flag {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 12.5px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--orange-wash);
+    border: 1px solid color-mix(in oklab, var(--orange) 35%, var(--border));
+    margin-top: 4px;
+  }
+  .lean-flag b { color: var(--orange); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="back-link" href="./">← Back to the Week 2 review</a>
+
+  <header>
+    <div class="eyebrow">Stride · Training tiers · Cohort review prep</div>
+    <h1>Same tier ladder. Three different homes on the profile.</h1>
+    <p class="lede">
+      All three placements run off the identical logic underneath (5 tiers, same thresholds,
+      same click-to-expand behavior). What changes is <strong>where on the page it lives</strong>
+      and <strong>how much it asks for by default</strong>. Toggle the demo athlete below, then
+      click into any tier — try the same click on all three columns to feel the difference.
+    </p>
+  </header>
+
+  <div class="state-bar">
+    <span class="label">Demo athlete</span>
+    <div class="state-btns" id="athleteBtns"></div>
+    <span class="state-hint" id="athleteHint"></span>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="question-panel">
+    <h2>The question for the cohort</h2>
+    <p>
+      Three placements were prototyped for the same idea: a sidebar card, a header chip, and an
+      inline ladder. Which should actually get built? There's no support-ticket evidence pointing
+      at one placement over another — this is a judgment call on visibility vs. footprint, not a
+      resolved problem.
+    </p>
+    <div class="lean-flag">
+      Current lean: <b>sidebar card</b>, as the safest default — flagged as a guess, not a finding.
+    </div>
+  </div>
+</div>
+
+<script>
+  const TIERS = [
+    { name: "Getting started", min: 0, icon: "🌱", blurb: "Every athlete starts here. Log your first few efforts." },
+    { name: "Building momentum", min: 5, icon: "🔥", blurb: "You're showing up more than once a week. Keep it going." },
+    { name: "Consistent", min: 10, icon: "⚡", blurb: "Regular enough that Stride can start spotting real trends in your training." },
+    { name: "Committed", min: 18, icon: "🏅", blurb: "You've logged more than most athletes ever do. Segments start to feel like home turf." },
+    { name: "Elite", min: 28, icon: "🏆", blurb: "Top tier of logged training. Nothing left to prove — just keep training." },
+  ];
+
+  function tierIndexFor(count) {
+    let idx = 0;
+    for (let i = 0; i < TIERS.length; i++) if (count >= TIERS[i].min) idx = i;
+    return idx;
+  }
+  function tierState(count) {
+    const currentIdx = tierIndexFor(count);
+    const current = TIERS[currentIdx];
+    const next = TIERS[currentIdx + 1];
+    const pct = next ? Math.min(100, ((count - current.min) / (next.min - current.min)) * 100) : 100;
+    return { count, currentIdx, current, next, pct };
+  }
+
+  const ATHLETE_PRESETS = [
+    { label: "Brand-new · 0 activities", count: 0 },
+    { label: "Mid-ladder · 7 activities", count: 7 },
+    { label: "Near-cap · 24 activities", count: 24 },
+  ];
+
+  let athleteCount = 0;
+  // per-card open tier index, keyed by placement id; -1 means none open
+  const openIdx = { sidebar: 0, header: 0, inline: 0 };
+  let headerExpanded = false;
+
+  function tierItemHTML(placementId, tier, i, state, orientation) {
+    const unlocked = i <= state.currentIdx;
+    const isOpen = openIdx[placementId] === i;
+    const next = TIERS[i + 1];
+    let detail = "";
+    if (isOpen) {
+      let req = "";
+      if (unlocked) {
+        req = i === state.currentIdx && next
+          ? `<span class="req">${state.count}/${next.min} activities logged · ${Math.max(0, next.min - state.count)} more to reach ${next.name}</span>`
+          : `<span class="req">Unlocked</span>`;
+      } else {
+        req = `<span class="req">Requires ${tier.min}+ logged activities</span>`;
+      }
+      detail = `<div class="tier-item-detail">${tier.blurb}${req}</div>`;
+    }
+    return `
+      <button class="tier-item ${unlocked ? "unlocked" : "locked"}" data-placement="${placementId}" data-idx="${i}">
+        <div class="tier-item-top">
+          <span class="tier-item-icon">${unlocked ? tier.icon : "🔒"}</span>
+          <span class="tier-item-name">${tier.name}</span>
+        </div>
+        ${i === state.currentIdx ? '<span class="current-badge">Current</span>' : ""}
+        ${detail}
+      </button>
+    `;
+  }
+
+  function ladderHTML(placementId, state, orientation) {
+    const cls = orientation === "h" ? "ladder-h" : "ladder-v";
+    return `<div class="${cls}">${TIERS.map((t, i) => tierItemHTML(placementId, t, i, state, orientation)).join("")}</div>`;
+  }
+
+  function sidebarCardHTML(state) {
+    return `
+      <div class="frame">
+        <div class="profile-row">
+          <div class="avatar">AC</div>
+          <div><div class="profile-name">Alex Carter</div><div class="profile-sub">@alex · Boulder, US</div></div>
+        </div>
+        <div class="placeholder-block ph-chart"></div>
+        <div class="body-cols">
+          <div class="main-col">
+            <div class="placeholder-block ph-row"></div>
+            <div class="placeholder-block ph-row"></div>
+            <div class="placeholder-block ph-row"></div>
+          </div>
+          <div class="aside-col">
+            <div class="tier-card">
+              <div class="tier-card-head">🏆 Training tier</div>
+              <div class="tier-current">
+                <span class="tier-icon">${state.current.icon}</span>
+                <div>
+                  <div class="tier-current-name">${state.current.name}</div>
+                  ${state.next ? `<div class="tier-next-hint">${Math.max(0, state.next.min - state.count)} to ${state.next.name}</div>` : `<div class="tier-next-hint">Top tier</div>`}
+                </div>
+              </div>
+              ${state.next ? `<div class="progress-track"><div class="progress-fill" style="width:${state.pct}%"></div></div>` : ""}
+              <div style="margin-top:8px">${ladderHTML("sidebar", state, "v")}</div>
+            </div>
+            <div class="placeholder-block">
+              <div class="aside-label">Latest sport</div>
+              <div class="placeholder-block ph-row" style="margin:6px;height:18px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function headerChipHTML(state) {
+    return `
+      <div class="frame">
+        <div class="profile-row" style="justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="avatar">AC</div>
+            <div><div class="profile-name">Alex Carter</div><div class="profile-sub">@alex · Boulder, US</div></div>
+          </div>
+          <button class="chip" id="headerChipBtn" aria-expanded="${headerExpanded}">
+            <span>${state.current.icon}</span> ${state.current.name} <span class="chev">▾</span>
+          </button>
+        </div>
+        ${headerExpanded ? `
+          <div class="ladder-panel">
+            <div class="ladder-panel-head">
+              <div class="ladder-panel-title">Your training tiers</div>
+              ${state.next ? `<div class="ladder-panel-hint">${state.count}/${state.next.min} to ${state.next.name}</div>` : `<div class="ladder-panel-hint">Top tier</div>`}
+            </div>
+            ${state.next ? `<div class="progress-track" style="margin-bottom:8px"><div class="progress-fill" style="width:${state.pct}%"></div></div>` : ""}
+            ${ladderHTML("header", state, "h")}
+          </div>
+        ` : ""}
+        <div class="placeholder-block ph-chart"></div>
+        <div class="body-cols">
+          <div class="main-col">
+            <div class="placeholder-block ph-row"></div>
+            <div class="placeholder-block ph-row"></div>
+          </div>
+          <div class="aside-col">
+            <div class="placeholder-block">
+              <div class="aside-label">Trophy case</div>
+              <div class="trophy-mini">
+                ${TIERS.slice(0, state.currentIdx + 1).map(t => `<span>${t.icon}</span>`).join("")}
+                ${Array.from({length: Math.max(0, 3 - (state.currentIdx + 1))}).map(() => `<span style="opacity:.3">·</span>`).join("")}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function inlineLadderHTML(state) {
+    return `
+      <div class="frame">
+        <div class="profile-row">
+          <div class="avatar">AC</div>
+          <div><div class="profile-name">Alex Carter</div><div class="profile-sub">@alex · Boulder, US</div></div>
+        </div>
+        <div class="placeholder-block ph-chart"></div>
+        <div class="ladder-panel">
+          <div class="ladder-panel-head">
+            <div class="ladder-panel-title"><span>${state.current.icon}</span> ${state.current.name}</div>
+            ${state.next ? `<div class="ladder-panel-hint">${state.count}/${state.next.min} · ${Math.max(0, state.next.min - state.count)} to ${state.next.name}</div>` : `<div class="ladder-panel-hint">Top tier</div>`}
+          </div>
+          ${state.next ? `<div class="progress-track" style="margin-bottom:8px"><div class="progress-fill" style="width:${state.pct}%"></div></div>` : ""}
+          ${ladderHTML("inline", state, "h")}
+        </div>
+        <div class="body-cols">
+          <div class="main-col">
+            <div class="placeholder-block ph-row"></div>
+            <div class="placeholder-block ph-row"></div>
+          </div>
+          <div class="aside-col">
+            <div class="placeholder-block">
+              <div class="aside-label">Trophy case</div>
+              <div class="trophy-mini">
+                ${TIERS.slice(0, state.currentIdx + 1).map(t => `<span>${t.icon}</span>`).join("")}
+                ${Array.from({length: Math.max(0, 3 - (state.currentIdx + 1))}).map(() => `<span style="opacity:.3">·</span>`).join("")}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const PLACEMENTS = [
+    { id: "sidebar", name: "Sidebar card", desc: "Replaces the trophy case in the right rail. Full ladder always visible.", render: sidebarCardHTML },
+    { id: "header", name: "Header chip", desc: "Sits next to the athlete's name. Collapsed by default — click to reveal.", render: headerChipHTML },
+    { id: "inline", name: "Inline ladder", desc: "A dedicated block above Recent activities. Always visible, full-width.", render: inlineLadderHTML },
+  ];
+
+  function render() {
+    const state = tierState(athleteCount);
+    const board = document.getElementById("board");
+    board.innerHTML = PLACEMENTS.map(p => `
+      <div class="placement">
+        <div class="placement-head">
+          <div class="placement-name">${p.name}</div>
+          <div class="placement-desc">${p.desc}</div>
+        </div>
+        ${p.render(state)}
+      </div>
+    `).join("");
+
+    // wire up tier item clicks
+    board.querySelectorAll(".tier-item").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const placementId = btn.dataset.placement;
+        const idx = Number(btn.dataset.idx);
+        openIdx[placementId] = openIdx[placementId] === idx ? -1 : idx;
+        render();
+      });
+    });
+
+    const chipBtn = document.getElementById("headerChipBtn");
+    if (chipBtn) {
+      chipBtn.addEventListener("click", () => {
+        headerExpanded = !headerExpanded;
+        render();
+      });
+    }
+
+    const hint = document.getElementById("athleteHint");
+    hint.textContent = state.next
+      ? `${state.count} activities logged · ${state.current.name} · ${Math.max(0, state.next.min - state.count)} to ${state.next.name}`
+      : `${state.count} activities logged · ${state.current.name} · top tier reached`;
+  }
+
+  function renderAthleteButtons() {
+    const wrap = document.getElementById("athleteBtns");
+    wrap.innerHTML = ATHLETE_PRESETS.map(p => `
+      <button class="state-btn" data-count="${p.count}" aria-pressed="${athleteCount === p.count}">${p.label}</button>
+    `).join("");
+    wrap.querySelectorAll(".state-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        athleteCount = Number(btn.dataset.count);
+        openIdx.sidebar = tierIndexFor(athleteCount);
+        openIdx.header = tierIndexFor(athleteCount);
+        openIdx.inline = tierIndexFor(athleteCount);
+        renderAthleteButtons();
+        render();
+      });
+    });
+  }
+
+  renderAthleteButtons();
+  render();
+</script>
+</body>
+</html>
