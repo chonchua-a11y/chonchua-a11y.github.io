@@ -17,6 +17,8 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html { scroll-behavior: smooth; }
+
   body {
     font-family: 'Roboto', Arial, sans-serif;
     background: var(--white);
@@ -212,6 +214,23 @@
     border-radius: 10px;
     padding: 18px 14px;
     text-align: center;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+
+  .flow-step:hover,
+  .flow-step:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(133,114,81,0.22);
+    border-color: var(--star-gold);
+  }
+
+  .flow-step:hover .flow-label {
+    color: var(--site-gold);
   }
 
   .flow-step .flow-num {
@@ -271,6 +290,7 @@
     color: var(--site-gold);
     margin-top: 56px;
     margin-bottom: 8px;
+    scroll-margin-top: 84px;
   }
 
   h2 .num {
@@ -542,29 +562,29 @@
   <p class="lede">You don't need to know what NotebookLM or GitHub are to follow this. Think of it as a recipe with four stages: gather the ingredients, cook them into a page, write the recipe down so I can cook it again, then actually cook it again.</p>
 
   <div class="flow-diagram">
-    <div class="flow-step">
+    <a class="flow-step" href="#stage-create">
       <span class="flow-num">1</span>
       <span class="flow-label">Create</span>
       <span class="flow-desc">AI generates the four outputs</span>
-    </div>
+    </a>
     <div class="flow-arrow">→</div>
-    <div class="flow-step">
+    <a class="flow-step" href="#stage-build">
       <span class="flow-num">2</span>
       <span class="flow-label">Build &amp; Brand</span>
       <span class="flow-desc">Real code, real files, LiveStarLight look</span>
-    </div>
+    </a>
     <div class="flow-arrow">→</div>
-    <div class="flow-step">
+    <a class="flow-step" href="#stage-codify">
       <span class="flow-num">3</span>
       <span class="flow-label">Codify</span>
       <span class="flow-desc">Process saved as a reusable skill</span>
-    </div>
+    </a>
     <div class="flow-arrow">→</div>
-    <div class="flow-step">
+    <a class="flow-step" href="#stage-replay">
       <span class="flow-num">4</span>
       <span class="flow-label">Replay</span>
       <span class="flow-desc">Same recipe, new topic, proof it holds up</span>
-    </div>
+    </a>
   </div>
 
   <h2>What a Research Brief Actually Is</h2>
@@ -572,7 +592,7 @@
 
   <hr class="rule">
 
-  <h2><span class="num">1</span>Create</h2>
+  <h2 id="stage-create"><span class="num">1</span>Create</h2>
   <p class="section-sub">Turning a topic into four pieces of content. Always done by hand, on purpose.</p>
 
   <div class="stage">
@@ -598,7 +618,7 @@
 
   <hr class="rule">
 
-  <h2><span class="num">2</span>Build &amp; Brand</h2>
+  <h2 id="stage-build"><span class="num">2</span>Build &amp; Brand</h2>
   <p class="section-sub">Where the raw files turn into an actual webpage.</p>
 
   <div class="stage">
@@ -664,13 +684,13 @@
 
   <hr class="rule">
 
-  <h2><span class="num">3</span>Codify</h2>
+  <h2 id="stage-codify"><span class="num">3</span>Codify</h2>
   <p class="section-sub">Making sure I never have to re-explain this from scratch.</p>
   <p>Once a brief works end to end, I don't just move on. I write the whole process down as a "skill," a saved set of instructions an AI assistant can follow on its own next time. It also locks in a standing rule: write everything in my voice, no filler, no AI-sounding phrases.</p>
 
   <hr class="rule">
 
-  <h2><span class="num">4</span>Replay</h2>
+  <h2 id="stage-replay"><span class="num">4</span>Replay</h2>
   <p class="section-sub">The real test of whether this pipeline actually holds up.</p>
   <p>New topic in, same recipe, a finished brief out. I've run it three times now: Pacing the Frontier, The New AI PM Playbook, and Bridgewater's AI Analyst. Each round proved the process again, and the third round added the hub-listing step without anything else breaking. That's the real proof: it holds up on topics it wasn't built for, not just the one it started with.</p>
 
