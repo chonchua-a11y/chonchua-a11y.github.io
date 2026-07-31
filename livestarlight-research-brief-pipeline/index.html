@@ -113,6 +113,19 @@
     background: radial-gradient(circle, rgba(133,114,81,0.18) 0%, transparent 70%);
   }
 
+  .hero .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .hero-text {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }
+
   .kicker {
     font-weight: 500;
     font-size: 13px;
@@ -120,8 +133,6 @@
     letter-spacing: 2.5px;
     color: var(--star-gold);
     margin-bottom: 18px;
-    position: relative;
-    z-index: 1;
   }
 
   .hero h1 {
@@ -130,8 +141,6 @@
     line-height: 1.25;
     color: var(--site-gold);
     margin-bottom: 18px;
-    position: relative;
-    z-index: 1;
     max-width: 600px;
   }
 
@@ -140,8 +149,38 @@
     font-size: 18px;
     color: var(--mid-gray);
     max-width: 540px;
+  }
+
+  .hero-portrait {
     position: relative;
     z-index: 1;
+    flex: none;
+    width: 190px;
+    height: 190px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(33,33,33,0.18);
+    border: 3px solid var(--white);
+  }
+
+  .hero-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 20%;
+    display: block;
+  }
+
+  @media (max-width: 640px) {
+    .hero .wrap {
+      flex-direction: column-reverse;
+      text-align: left;
+    }
+    .hero-portrait {
+      width: 130px;
+      height: 130px;
+      align-self: flex-start;
+    }
   }
 
   /* Content */
@@ -420,9 +459,14 @@
 
 <section class="hero">
   <div class="wrap">
-    <div class="kicker">Behind the Scenes</div>
-    <h1>How I Build a LiveStarLight Research Brief</h1>
-    <p class="subtitle">A plain-English walkthrough of the pipeline, for anyone who isn't deep in AI or code. No jargon required.</p>
+    <div class="hero-text">
+      <div class="kicker">Behind the Scenes</div>
+      <h1>How I Build a LiveStarLight Research Brief</h1>
+      <p class="subtitle">A plain-English walkthrough of the pipeline, for anyone who isn't deep in AI or code. No jargon required.</p>
+    </div>
+    <div class="hero-portrait">
+      <img src="assets/choon-ai-lab-elvish.jpg" alt="Choon, illustrated in the LiveStarLight workshop, holding a glowing star surrounded by data panels">
+    </div>
   </div>
 </section>
 
