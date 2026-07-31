@@ -198,6 +198,73 @@
     margin-bottom: 8px;
   }
 
+  /* Flow diagram */
+  .flow-diagram {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 40px 0 48px;
+  }
+
+  .flow-step {
+    flex: 1;
+    background: var(--parchment);
+    border-radius: 10px;
+    padding: 18px 14px;
+    text-align: center;
+  }
+
+  .flow-step .flow-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--site-gold);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .flow-step .flow-label {
+    display: block;
+    font-weight: 500;
+    color: var(--ink);
+    font-size: 14.5px;
+    margin-bottom: 4px;
+  }
+
+  .flow-step .flow-desc {
+    display: block;
+    color: var(--mid-gray);
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+
+  .flow-arrow {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    color: var(--star-gold);
+    font-size: 18px;
+  }
+
+  @media (max-width: 640px) {
+    .flow-diagram {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .flow-arrow {
+      width: auto;
+      height: 20px;
+      transform: rotate(90deg);
+    }
+  }
+
   h2 {
     font-weight: 500;
     font-size: 26px;
@@ -473,6 +540,32 @@
 <div class="wrap content">
 
   <p class="lede">You don't need to know what NotebookLM or GitHub are to follow this. Think of it as a recipe with four stages: gather the ingredients, cook them into a page, write the recipe down so I can cook it again, then actually cook it again.</p>
+
+  <div class="flow-diagram">
+    <div class="flow-step">
+      <span class="flow-num">1</span>
+      <span class="flow-label">Create</span>
+      <span class="flow-desc">AI generates the four outputs</span>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <span class="flow-num">2</span>
+      <span class="flow-label">Build &amp; Brand</span>
+      <span class="flow-desc">Real code, real files, LiveStarLight look</span>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <span class="flow-num">3</span>
+      <span class="flow-label">Codify</span>
+      <span class="flow-desc">Process saved as a reusable skill</span>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <span class="flow-num">4</span>
+      <span class="flow-label">Replay</span>
+      <span class="flow-desc">Same recipe, new topic, proof it holds up</span>
+    </div>
+  </div>
 
   <h2>What a Research Brief Actually Is</h2>
   <p>Picture one topic explained four different ways: a short video, an audio overview you can listen to like a podcast, a slide deck you can flip through, and an infographic you can scan in ten seconds. All four live together on a single page, styled to look like LiveStarLight, with its own web address anyone can visit. That page is a "brief."</p>
