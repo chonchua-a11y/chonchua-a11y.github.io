@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stride: Training Tiers Ship Review</title>
+<meta name="description" content="What shipped versus what was prototyped for Stride's training tiers, a real Postgres query fix, a bug caught in self-review, and what's still open before merging.">
+<link rel="canonical" href="https://chonchua-a11y.github.io/week3/">
+
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://chonchua-a11y.github.io/week3/">
+<meta property="og:title" content="From a components sandbox to a real Postgres query.">
+<meta property="og:description" content="What shipped versus what was prototyped, a bug caught in self-review before it reached a human reviewer, and what's still open before merging.">
+<meta property="og:image" content="https://chonchua-a11y.github.io/week3/shipped-02-expanded.png">
+<meta property="og:site_name" content="chonchua-a11y.github.io">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="From a components sandbox to a real Postgres query.">
+<meta name="twitter:description" content="What shipped versus what was prototyped, a bug caught in self-review before it reached a human reviewer, and what's still open before merging.">
+<meta name="twitter:image" content="https://chonchua-a11y.github.io/week3/shipped-02-expanded.png">
+
+<style>
+  :root {
+    --bg: #F1F3EE;
+    --surface: #FFFFFF;
+    --surface-alt: #E7EAE2;
+    --text: #1E2420;
+    --text-muted: #5C6660;
+    --border: #D7DBD0;
+    --accent: #C1501F;
+    --accent-soft: #F1DFD3;
+    --accent-ink: #7A3313;
+    --teal: #2F6E64;
+    --teal-soft: #E1EEEB;
+    --warn: #8A5F0E;
+    --warn-soft: #F1E3C4;
+    --low-tier: #ABA593;
+    --shadow: 0 1px 2px rgba(30,36,32,0.06), 0 8px 24px rgba(30,36,32,0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141815; --surface: #1B211D; --surface-alt: #232A24; --text: #EDEFE9;
+      --text-muted: #9AA69C; --border: #313930; --accent: #E37A3F; --accent-soft: #3A2418;
+      --accent-ink: #F2C4A4; --teal: #5FA79A; --teal-soft: #1B302C; --warn: #D2A542; --warn-soft: #362C15;
+      --low-tier: #6E6B5C; --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141815; --surface: #1B211D; --surface-alt: #232A24; --text: #EDEFE9;
+    --text-muted: #9AA69C; --border: #313930; --accent: #E37A3F; --accent-soft: #3A2418;
+    --accent-ink: #F2C4A4; --teal: #5FA79A; --teal-soft: #1B302C; --warn: #D2A542; --warn-soft: #362C15;
+    --low-tier: #6E6B5C; --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F1F3EE; --surface: #FFFFFF; --surface-alt: #E7EAE2; --text: #1E2420;
+    --text-muted: #5C6660; --border: #D7DBD0; --accent: #C1501F; --accent-soft: #F1DFD3;
+    --accent-ink: #7A3313; --teal: #2F6E64; --teal-soft: #E1EEEB; --warn: #8A5F0E; --warn-soft: #F1E3C4;
+    --low-tier: #ABA593; --shadow: 0 1px 2px rgba(30,36,32,0.06), 0 8px 24px rgba(30,36,32,0.05);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: Charter, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+    font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  .page { max-width: 740px; margin: 0 auto; padding: clamp(28px, 6vw, 72px) clamp(18px, 5vw, 24px) 88px; }
+  .font-mono { font-family: ui-monospace, 'SF Mono', 'IBM Plex Mono', Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+
+  .masthead { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+  .week-tag {
+    display: inline-block; width: fit-content;
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+    background: var(--accent-soft); color: var(--accent-ink);
+    padding: 5px 11px; border-radius: 20px; margin: 0;
+  }
+  .eyebrow {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin: 0;
+  }
+  h1 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600; font-size: clamp(26px, 4.4vw, 36px); line-height: 1.16; letter-spacing: -0.01em; margin: 0; text-wrap: balance;
+  }
+  .dek { color: var(--text-muted); font-size: 17.5px; line-height: 1.55; max-width: 58ch; margin: 0; }
+
+  section.block { padding: 30px 0; border-top: 1px solid var(--border); }
+  section.block:first-of-type { border-top: none; padding-top: 0; }
+  .block h2 {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-weight: 600; font-size: 21px; margin: 0 0 14px; text-wrap: balance;
+  }
+  .block p { margin: 0 0 14px; max-width: 62ch; }
+  .block p:last-child { margin-bottom: 0; }
+  .lede { font-size: 18px; }
+
+  .revision-note { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 32px; }
+  .revision-note .rev-kicker {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin: 0 0 6px;
+  }
+  .revision-note p { margin: 0; font-size: 14.5px; color: var(--text); max-width: 62ch; }
+
+  .link-box {
+    display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 20px; box-shadow: var(--shadow);
+  }
+  .link-box a.btn {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 13px; font-weight: 600; text-decoration: none;
+    background: var(--accent); color: #fff; padding: 9px 16px; border-radius: 6px;
+  }
+  .link-box .note { font-size: 14px; color: var(--text-muted); font-family: Charter, Georgia, serif; }
+  .status-pill {
+    display: inline-block; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600;
+    background: var(--warn-soft); color: var(--warn); padding: 3px 9px; border-radius: 20px;
+  }
+
+  .shot { margin: 20px 0; }
+  .shot img, .shot video { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .shot .cap { font-size: 14px; color: var(--text-muted); margin-top: 8px; }
+  .shot .cap b { color: var(--text); font-weight: 600; }
+
+  .table-wrap { overflow-x: auto; margin: 14px 0 6px; border: 1px solid var(--border); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; min-width: 460px; font-size: 14.5px; }
+  th, td { padding: 9px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted);
+    background: var(--surface-alt); font-weight: 600;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  .side-note { border-left: 3px solid var(--warn); background: var(--warn-soft); border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 20px 0; }
+  .side-note .flag {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--warn); font-weight: 700; margin: 0 0 10px;
+  }
+  .side-note ul { margin: 0; padding-left: 20px; }
+  .side-note li { margin-bottom: 10px; font-size: 15px; color: var(--text); max-width: 60ch; }
+  .side-note li:last-child { margin-bottom: 0; }
+  .side-note li b { color: var(--warn); }
+
+  .evidence-quote { border-left: 3px solid var(--border); background: var(--surface-alt); border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 14px 0; }
+  .evidence-quote p { margin: 0; font-style: italic; font-size: 14.5px; color: var(--text); max-width: 60ch; }
+  .evidence-quote cite { display: block; margin-top: 6px; font-style: normal; font-size: 12.5px; color: var(--text-muted); }
+
+  .question-box {
+    border-left: 3px solid var(--teal); background: var(--teal-soft);
+    border-radius: 0 8px 8px 0; padding: 18px 22px;
+  }
+  .question-box .q-kicker {
+    font-family: Futura, 'Century Gothic', 'Avenir Next', Avenir, sans-serif;
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); font-weight: 700; margin: 0 0 8px;
+  }
+  .question-box p { margin: 0 0 10px; font-size: 15.5px; color: var(--text); max-width: 58ch; }
+  .question-box p:last-child { margin-bottom: 0; }
+
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-muted); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .masthead, .block { animation: rise 0.5s ease-out both; }
+    .block:nth-of-type(1) { animation-delay: 0.02s; }
+    .block:nth-of-type(2) { animation-delay: 0.05s; }
+    .block:nth-of-type(3) { animation-delay: 0.08s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="week-tag">Week 3: Ship your feature</p>
+    <p class="eyebrow">Ship review · Stride training tiers</p>
+    <h1>From a components sandbox to a real Postgres query.</h1>
+    <p class="dek">The prototype was mock data and three placements to compare. What shipped is one of them, wired to a real database, plus a bug I introduced and caught before a human reviewer had to.</p>
+  </header>
+
+  <div class="revision-note">
+    <p class="rev-kicker">Continuity from Week 2</p>
+    <p>Same feature as the <a href="/week2/">Week 2 prototype review</a>: a cumulative tier ladder replacing the athlete profile's static Trophy Case, targeting the retained-but-under-logging segment from <a href="/week1/">Week 1</a>. This page covers what changed getting it into the real app.</p>
+  </div>
+
+  <section class="block">
+    <h2>Link to the PR</h2>
+    <div class="link-box">
+      <a class="btn" href="https://github.com/colinmatthews/stride/pull/60" target="_blank" rel="noopener">View PR #60 →</a>
+      <span class="status-pill">Open, not merged</span>
+      <span class="note">Branch <code class="font-mono" style="font-size:0.92em">student/chonchua-a11y/tier-ladder</code> → <code class="font-mono" style="font-size:0.92em">main</code></span>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Demo</h2>
+    <p class="lede">Signed in as a real account with zero real activities, against the live Postgres database, not the mock sandbox.</p>
+
+    <div class="shot">
+      <video src="demo.webm" controls muted playsinline preload="metadata"></video>
+      <p class="cap"><b>Demo clip:</b> signing in, landing on the real athlete profile, expanding a locked tier, all against the live database.</p>
+    </div>
+
+    <div class="shot">
+      <img src="shipped-01-default.png" alt="The shipped Training Tier card on the real athlete profile, showing Getting started at 0 activities" loading="lazy">
+      <p class="cap"><b>Default state, real account:</b> 0 real activities, Getting started, 0/5 to Building momentum. Matches what we predicted from the prototype, now confirmed for real.</p>
+    </div>
+
+    <div class="shot">
+      <img src="shipped-02-expanded.png" alt="The Committed tier expanded, showing the lock icon and requirement text, plus the redesigned progress bar" loading="lazy">
+      <p class="cap"><b>Locked tier expanded:</b> same interaction as the prototype. The thin bar under "Getting started" is the design system's actual Progress component now, swapped in during self-review, see below.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>What I prototyped vs. what shipped</h2>
+    <p class="lede">The prototype answered a design question: which placement, and does the idea make sense at all. Shipping meant making it real, which turned out to be a different set of problems entirely.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Prototyped</th><th>Shipped</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>3 placements to compare (sidebar card, header chip, inline ladder)</td>
+            <td>Sidebar card only. Which one to actually keep was still an open question going into this week, not one I resolved, see "what I'd cut" below.</td>
+          </tr>
+          <tr>
+            <td>Mock data, in-memory array, resets on every reload</td>
+            <td>Real Postgres. Tier count comes from an actual <code class="font-mono" style="font-size:0.92em">COUNT(*)</code> query, added this week, not something that existed before.</td>
+          </tr>
+          <tr>
+            <td>No auth, anyone could open the sandbox URL</td>
+            <td>Existing session/bootstrap auth, unmodified. Nothing new needed here, it came for free from the app's existing flow.</td>
+          </tr>
+          <tr>
+            <td>Zero analytics</td>
+            <td>3 new PostHog events (<code class="font-mono" style="font-size:0.92em">tier_viewed</code>, <code class="font-mono" style="font-size:0.92em">tier_row_expanded</code>, <code class="font-mono" style="font-size:0.92em">activities_load_more</code>), matching the file's existing capture pattern</td>
+          </tr>
+          <tr>
+            <td>Tier thresholds picked to look reasonable in a demo</td>
+            <td>Unchanged. Still illustrative, not derived from real logging-frequency data. Shipping didn't validate this, it just made the number real.</td>
+          </tr>
+          <tr>
+            <td>No test coverage of any kind</td>
+            <td>11 tests on the pure tier math, 8 more on the query logic after self-review, the first server-side tests in this repo</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>One unexpected thing</h2>
+    <div class="question-box">
+      <p class="q-kicker">A bug I introduced, then caught</p>
+      <p>Wiring up the real query meant fixing an actual bug: the tier count was computed from however many activities happened to be loaded on screen, not the athlete's real total. Pagination meant the tier could under-report and then jump when someone clicked "load more."</p>
+      <p>The fix I wrote had its own bug. I added a fallback, <code class="font-mono" style="font-size:0.92em">totalCount ?? activities.length</code>, meant to guard against a malformed API response. What it actually did was silently reintroduce the exact bug I'd just fixed, with zero error or log, the moment that fallback ever fired. It would have looked fine in every normal case and quietly gone wrong in exactly the case I was trying to prevent.</p>
+      <p>I only caught it by running a structured self-review against the diff before asking for a human reviewer, which is the part worth remembering: the fix for a silent-failure bug can itself fail silently, and it takes a second, deliberate pass to catch that, not just testing the happy path.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>What I'd cut or improve before merging</h2>
+    <div class="side-note">
+      <p class="flag">Still open</p>
+      <ul>
+        <li><b>Which placement to actually keep.</b> Sidebar card shipped because it's what was already in progress when I picked this up, not because it won a real comparison. Header chip and inline ladder are still sitting in the prototype, untested against real users.</li>
+        <li><b>Tier thresholds are still a guess.</b> 5 / 10 / 18 / 28 activities were chosen to make a demo account look reasonable, not derived from real logging-frequency data across the retained-but-under-logging segment this is supposed to help.</li>
+        <li><b>No gating tied to tiers.</b> This is purely a display feature right now. If tiers are ever meant to unlock something real, that's a separate decision nobody's made yet.</li>
+        <li><b>The whole idea is still the weaker bet.</b> Worth repeating from Week 2: unlike the sync-recovery fix, there's no customer or backlog demand for this, just a behavioral signal and a dead metric on the existing Challenges feature. Shipping code doesn't change that.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    Source: <a href="https://github.com/colinmatthews/stride/pull/60" target="_blank" rel="noopener">colinmatthews/stride PR #60</a>. Prototype and review process in <a href="/week2/">Week 2</a>, discovery in <a href="/week1/">Week 1</a>.
+  </footer>
+
+</div>
+</body>
+</html>
